@@ -32,6 +32,7 @@ export const connectToMongoDB = async (): Promise<void> => {
 
 // Event handler untuk koneksi
 const db = mongoose.connection;
+
 db.on("error", (err) => {
   console.error("Error pada koneksi MongoDB:", err);
 });

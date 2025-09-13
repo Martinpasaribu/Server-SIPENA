@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
-
+import session from 'express-session';
 import { connectToMongoDB } from './config/db_monggo_config';
 
 import app from './app';
+// import { sendTemplateMessage } from './utils/Whatsapp';
+import { sendTelegramMessage } from './utils/Telegram';
 
 dotenv.config();
 
@@ -20,6 +22,10 @@ const startServer = async () => {
         app.listen(process.env.PORT, () => {
             console.log(`Server Active on Port ${process.env.PORT}`);
         });
+
+        // await sendTemplateMessage()
+
+
     } catch (error) {
         console.error("Failed to connect to MongoDB:", error);
         process.exit(1); 
