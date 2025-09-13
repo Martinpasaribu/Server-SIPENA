@@ -12,26 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv_1 = __importDefault(require("dotenv"));
-const db_monggo_config_1 = require("./config/db_monggo_config");
-const app_1 = __importDefault(require("./app"));
-dotenv_1.default.config();
-const PORT = process.env.PORT || 5000;
-const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // await connectToDatabase();
-        yield (0, db_monggo_config_1.connectToMongoDB)();
-        console.log('Server Read Database');
-        app_1.default.listen(process.env.PORT, () => {
-            console.log(`Server Active on Port ${process.env.PORT}`);
-        });
-        // await sendTemplateMessage()
+exports.verifyAdmin = void 0;
+const models_admin_1 = __importDefault(require("../Admin/models/models_admin"));
+const verifyAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("👍🏼 Session verify Admin 👍🏼 :", req.session.userId);
+    if (!req.session.userId) {
+        return res.status(401).json({ message: "Session admin empty, Login again" });
     }
-    catch (error) {
-        console.error("Failed to connect to MongoDB:", error);
-        process.exit(1);
+    const admin = yield models_admin_1.default.findOne({ _id: req.session.userId, active: true });
+    if (!admin) {
+        return res.status(404).json({ message: "User sessionID not found" });
     }
+    // Perbaikan logika role
+    if (admin.role !== "A" && admin.role !== "SA" && admin.role !== "CA") {
+        return res.status(403).json({ message: "Access anda tidak di izinkan" });
+    }
+    req.role = admin.role;
+    req.userAdmin = admin.username;
+    next();
 });
-startServer.keepAliveTimeout = 60000; // 60 detik
-startServer.headersTimeout = 65000;
-startServer();
+exports.verifyAdmin = verifyAdmin;

@@ -1,7 +1,6 @@
+"use strict";
 // import express, { Request, Response, NextFunction } from "express";
-
 // const activityLogger = (req: Request, res: Response, next: NextFunction) => {
-    
 //     console.log(`\n--- Log Aktivitas ---`);
 //     console.log(`Timestamp: ${new Date().toISOString()}`);
 //     console.log(`Method: ${req.method}`);
@@ -12,8 +11,6 @@
 //     console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
 //     console.log(`Files: ${JSON.stringify(req.files, null, 2)}`);
 //     console.log(`--- End Log ---\n`);
-
 //     next();
 // };
-
 // export default activityLogger;
