@@ -24,7 +24,7 @@ const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: [
         "http://localhost:3000", "http://localhost:3001",
-        "https://employee-sipena.vercel.app", "https://admin-sipena.vercel.app",
+        "https://admin-sipena.vercel.app", "https://employee-sipena.vercel.app",
         "https://clickusaha.com"
     ],
     methods: ["POST", "GET", "PATCH", "DELETE", 'PUT', "OPTIONS"],

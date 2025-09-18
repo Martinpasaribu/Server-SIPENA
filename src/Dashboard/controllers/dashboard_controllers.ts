@@ -190,7 +190,7 @@ export class DashboardControllers {
                     if (item._id === "A") name = "Antrian";
                     else if (item._id === "P") name = "Dalam Proses";
                     else if (item._id === "S") name = "Selesai";
-                    else if (item._id === "T") name = "Di Tolak";
+                    else if (item._id === "T") name = "Ditolak";
                     else if (item._id === "RU") name = "Review Ulang";
                     
                     return {

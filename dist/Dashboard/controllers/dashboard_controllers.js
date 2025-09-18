@@ -188,7 +188,7 @@ class DashboardControllers {
                     else if (item._id === "S")
                         name = "Selesai";
                     else if (item._id === "T")
-                        name = "Di Tolak";
+                        name = "Ditolak";
                     else if (item._id === "RU")
                         name = "Review Ulang";
                     return {
