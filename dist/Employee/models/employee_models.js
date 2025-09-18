@@ -35,12 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const EmployeeSchema = new mongoose_1.Schema({
-    division_key: [{
-            _id: {
-                type: mongoose_1.default.Schema.Types.ObjectId,
-                ref: 'Division',
-                trim: true
-            }
+    division_key: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'Division',
+            trim: true
         }
     ],
     user_id: {

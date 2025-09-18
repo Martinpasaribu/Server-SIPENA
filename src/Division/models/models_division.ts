@@ -68,13 +68,13 @@ const DivisionSchema: Schema = new Schema(
             default: 1
         },
 
-        employee_key: [{
-            _id:{type: mongoose.Schema.Types.ObjectId,trim: true, ref:'Employee'}
-        }],
+        employee_key: [
+            {type: mongoose.Schema.Types.ObjectId,trim: true, ref:'Employee'}
+        ],
 
-        item_key: [{
-            _id:{type: mongoose.Schema.Types.ObjectId,trim: true, ref:'Items'}
-        }],
+        item_key: [
+           {type: mongoose.Schema.Types.ObjectId,trim: true, ref:'Items'}
+        ],
 
         refresh_token: {
             type: String,

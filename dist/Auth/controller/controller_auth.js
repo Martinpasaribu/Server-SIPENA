@@ -47,10 +47,10 @@ class AuthController {
                 const email = user.email;
                 req.session.userId = userId;
                 const accessToken = jsonwebtoken_1.default.sign({ userId, username, email }, process.env.ACCESS_TOKEN_SECRET, {
-                    expiresIn: '15m'
+                    expiresIn: '30m'
                 });
                 const refreshToken = jsonwebtoken_1.default.sign({ userId, username, email }, process.env.REFRESH_TOKEN_SECRET, {
-                    expiresIn: '30m'
+                    expiresIn: '1d'
                 });
                 yield employee_models_1.default.findOneAndUpdate({ _id: userId }, // Cari berdasarkan userId saja
                 { refresh_token: refreshToken }, // Update refresh_token
@@ -135,10 +135,10 @@ class AuthController {
                 const email = user.email;
                 req.session.userId = userId;
                 const accessToken = jsonwebtoken_1.default.sign({ userId, name, email }, process.env.ACCESS_TOKEN_SECRET, {
-                    expiresIn: '2m'
+                    expiresIn: '30m'
                 });
                 const refreshToken = jsonwebtoken_1.default.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET, {
-                    expiresIn: '1m'
+                    expiresIn: '1d'
                 });
                 // const accessToken = jwt.sign(
                 //     { userId, name, email }, 
@@ -354,10 +354,14 @@ class AuthController {
                     status: true,
                     role: true,
                 }).populate({
-                    path: "division_key._id", // masuk ke field dalam array
-                    model: "Division", // pastikan model Division sudah didefinisikan
-                });
-                ;
+                    path: "division_key", // populate Division
+                    model: "Division",
+                    populate: {
+                        path: "item_key", // <-- nested populate ke Items
+                        model: "Items",
+                        select: "name code status ", // ambil field yang dibutuhkan
+                    },
+                }).lean();
                 if (!user)
                     return res.status(404).json({ message: "Your session-Id no register", success: false });
                 res.status(200).json({

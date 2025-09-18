@@ -13,19 +13,9 @@ const ReportSchema = new mongoose_1.default.Schema({
         required: false
     },
     division_key: {
-        _id: {
-            type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: 'Division',
-            required: false,
-        },
-        name: {
-            type: String,
-            required: false,
-        },
-        code: {
-            type: String,
-            required: false,
-        }
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Division',
+        required: false,
     },
     facility_key: {
         type: mongoose_1.default.Schema.Types.ObjectId,

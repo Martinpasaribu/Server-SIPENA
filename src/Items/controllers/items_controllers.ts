@@ -265,17 +265,17 @@ export class ItemsControllers {
                 // 3. Hapus item dari division lama (kalau ada)
                 if (oldDivisionKey) {
                     await DivisionModel.findOneAndUpdate(
-                    { _id: oldDivisionKey, isDeleted: false },
-                    { $pull: { item_key: { _id : updatedItem._id } } }
+                        { _id: oldDivisionKey, isDeleted: false },
+                        { $pull: { item_key: updatedItem._id } } // cukup ObjectId langsung
                     );
                 }
 
                 // 4. Tambahkan item ke division baru
                 if (division_key) {
                     await DivisionModel.findOneAndUpdate(
-                    { _id: division_key, isDeleted: false },
-                    { $addToSet: { item_key: { _id : updatedItem._id } } }, // pakai $addToSet biar gak duplikat
-                    { new: true }
+                        { _id: division_key, isDeleted: false },
+                        { $addToSet: { item_key: updatedItem._id } }, // bukan object
+                        { new: true }
                     );
                 }
 

@@ -1,16 +1,12 @@
 import express from 'express';
-import LeadRoutes from './routes/lead_routes';
 import cors from 'cors';
-import CustomerRoutes from './routes/customer_routes';
 import UserRouter from './Admin/route/router_admin';
 import AuthRouter from './Auth/route/router_auth';
 import session from 'express-session';
 import MongoDBStore from 'connect-mongodb-session';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import RoomRouter from './Room/routes/room_routes';
 import CustomerManagementRoute from './Employee';
-import Booking from './Booking';
 import Facility from './Facility';
 import Dashboard from './Dashboard';
 import Report from './Report';
@@ -29,7 +25,7 @@ app.use(cors({
     origin:   [
       
                 "http://localhost:3000","http://localhost:3001",
-                "https://savoy-client.vercel.app","https://admin-sipena.vercel.app",
+                "https://employee-sipena.vercel.app","https://admin-sipena.vercel.app",
                 "https://clickusaha.com"
 
               
@@ -117,10 +113,8 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Server Report !');
 });
 
-app.use('/api/v1/lead', LeadRoutes );
 app.use('/api/v1/division', Division );
 app.use('/api/v1/employee', Employee );
-app.use('/api/v1/booking'  , Booking )  ;
 app.use('/api/v1/report'  , Report )  ;
 app.use('/api/v1/dashboard', Dashboard );
 app.use('/api/v1/facility' , Facility ) ;
@@ -129,7 +123,6 @@ app.use('/api/v1/management-customer', CustomerManagementRoute);
 app.use('/api/v1/user-admin', UserRouter);
 app.use('/api/v1/admin', Admin);
 app.use('/api/v1/auth', AuthRouter);
-app.use('/api/v1/room', RoomRouter);
 
 
 export default app;

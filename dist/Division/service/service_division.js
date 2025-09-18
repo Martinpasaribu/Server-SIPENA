@@ -20,7 +20,7 @@ class DivisionService {
             if (!ItemsId && !DivisionId) {
                 throw new Error("ItemsIdId & DivisionId Kosong");
             }
-            yield models_division_1.default.findOneAndUpdate({ _id: DivisionId, isDeleted: false }, { $pull: { item_key: { _id: ItemsId } } }, // pakai $addToSet biar gak duplikat
+            yield models_division_1.default.findOneAndUpdate({ _id: DivisionId, isDeleted: false }, { $pull: { item_key: ItemsId } }, // pakai $addToSet biar gak duplikat
             { new: true });
             console.log(' data 1', ItemsId);
             console.log(' data 2', DivisionId);
@@ -33,7 +33,7 @@ class DivisionService {
             }
             if (DivisionId.length > 0) {
                 for (const divisionId of DivisionId) {
-                    yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $pull: { employee_key: { _id: EmployeeId } } });
+                    yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $pull: { employee_key: EmployeeId } });
                 }
             }
             console.log(' data 1', EmployeeId);
@@ -47,7 +47,7 @@ class DivisionService {
             }
             // loop semua division
             for (const divisionId of DivisionIds) {
-                yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $addToSet: { employee_key: { _id: EmployeeId } } }, // pakai $addToSet biar gak duplikat
+                yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $addToSet: { employee_key: EmployeeId } }, // pakai $addToSet biar gak duplikat
                 { new: true });
             }
         });
@@ -60,13 +60,13 @@ class DivisionService {
             // 3. Hapus employee dari division lama (kalau ada)
             if (DivisionIdOld.length > 0) {
                 for (const divisionId of DivisionIdOld) {
-                    yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $pull: { employee_key: { _id: EmployeeId } } });
+                    yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $pull: { employee_key: EmployeeId } });
                 }
             }
             // 4. Tambahkan employee ke division baru
             if (DivisionIdNew.length > 0) {
                 for (const divisionId of DivisionIdNew) {
-                    yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $addToSet: { employee_key: { _id: EmployeeId } } }, // pakai $addToSet biar gak duplikat
+                    yield models_division_1.default.findOneAndUpdate({ _id: divisionId, isDeleted: false }, { $addToSet: { employee_key: EmployeeId } }, // pakai $addToSet biar gak duplikat
                     { new: true });
                 }
             }
@@ -78,12 +78,12 @@ class DivisionService {
                 let updateQuery = {};
                 if (status === "A" || status === "P") {
                     updateQuery = {
-                        $addToSet: { employee_key: { _id: employee_id } }, // tambah employee_id
+                        $addToSet: { employee_key: employee_id }, // tambah employee_id
                     };
                 }
                 else if (status === "D") {
                     updateQuery = {
-                        $pull: { employee_key: { _id: employee_id } }, // hapus employee_id
+                        $pull: { employee_key: employee_id }, // hapus employee_id
                     };
                 }
                 else {

@@ -61,12 +61,12 @@ const DivisionSchema = new mongoose_1.Schema({
         type: Number,
         default: 1
     },
-    employee_key: [{
-            _id: { type: mongoose_1.default.Schema.Types.ObjectId, trim: true, ref: 'Employee' }
-        }],
-    item_key: [{
-            _id: { type: mongoose_1.default.Schema.Types.ObjectId, trim: true, ref: 'Items' }
-        }],
+    employee_key: [
+        { type: mongoose_1.default.Schema.Types.ObjectId, trim: true, ref: 'Employee' }
+    ],
+    item_key: [
+        { type: mongoose_1.default.Schema.Types.ObjectId, trim: true, ref: 'Items' }
+    ],
     refresh_token: {
         type: String,
         required: false

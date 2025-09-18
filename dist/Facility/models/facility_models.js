@@ -24,9 +24,9 @@ const FacilitySchema = new mongoose_1.default.Schema({
         price: { type: Number, required: false },
         date: { type: Date, required: false }
     },
-    items_key: {
-        _id: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Items", required: false },
-    },
+    items_key: [
+        { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Items", required: false },
+    ],
     data_after: {
         qty: { type: Number, required: false },
         price: { type: Number, required: false },

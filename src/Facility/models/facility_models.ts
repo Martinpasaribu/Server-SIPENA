@@ -57,9 +57,9 @@ const FacilitySchema = new mongoose.Schema(
       date : { type: Date, required: false}
     },
 
-    items_key: {
-      _id : { type: mongoose.Schema.Types.ObjectId, ref:"Items", required: false},
-    },
+    items_key: [
+     { type: mongoose.Schema.Types.ObjectId, ref:"Items", required: false},
+    ],
 
     data_after: {
       qty : { type: Number, required: false},

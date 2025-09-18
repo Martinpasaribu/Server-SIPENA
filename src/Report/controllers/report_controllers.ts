@@ -7,6 +7,7 @@ import { generateReportCode } from '../../utils/Generate_code';
 import { sendTelegramMessage } from '../../utils/Telegram';
 import { TypeBroken, TypeReport } from '../constant';
 import EmployeeModel from '../../Employee/models/employee_models';
+import { populate } from 'dotenv';
 
 export class ReportControllers {
 
@@ -115,6 +116,7 @@ export class ReportControllers {
         try {
             const reports = await ReportModel.find({ isDeleted: false })
             .populate({ path: "employee_key" })
+            .populate('division_key')
             .sort({ createdAt: -1 });
 
             if (!reports || reports.length === 0) {

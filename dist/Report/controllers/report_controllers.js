@@ -112,6 +112,7 @@ class ReportControllers {
             try {
                 const reports = yield report_models_1.default.find({ isDeleted: false })
                     .populate({ path: "employee_key" })
+                    .populate('division_key')
                     .sort({ createdAt: -1 });
                 if (!reports || reports.length === 0) {
                     return res.status(400).json({

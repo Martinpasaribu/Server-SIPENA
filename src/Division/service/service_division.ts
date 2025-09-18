@@ -11,7 +11,7 @@ class DivisionService {
 
     await DivisionModel.findOneAndUpdate(
       { _id: DivisionId, isDeleted: false },
-      { $pull: { item_key: { _id: ItemsId }} }, // pakai $addToSet biar gak duplikat
+      { $pull: { item_key:  ItemsId } }, // pakai $addToSet biar gak duplikat
       { new: true }
     );
 
@@ -29,7 +29,7 @@ class DivisionService {
       for (const divisionId of DivisionId) {
         await DivisionModel.findOneAndUpdate(
         { _id: divisionId, isDeleted: false },
-        { $pull: { employee_key: { _id : EmployeeId } } }
+        { $pull: { employee_key:  EmployeeId  } }
         );
       }
     }
@@ -48,7 +48,7 @@ class DivisionService {
     for (const divisionId of DivisionIds) {
       await DivisionModel.findOneAndUpdate(
         { _id: divisionId, isDeleted: false },
-        { $addToSet: { employee_key: { _id: EmployeeId }} }, // pakai $addToSet biar gak duplikat
+        { $addToSet: { employee_key: EmployeeId } }, // pakai $addToSet biar gak duplikat
         { new: true }
       );
     }
@@ -65,7 +65,7 @@ class DivisionService {
       for (const divisionId of DivisionIdOld) {
         await DivisionModel.findOneAndUpdate(
         { _id: divisionId, isDeleted: false },
-        { $pull: { employee_key: { _id : EmployeeId } } }
+        { $pull: { employee_key: EmployeeId  } }
         );
       }
     }
@@ -75,7 +75,7 @@ class DivisionService {
       for (const divisionId of DivisionIdNew) {
         await DivisionModel.findOneAndUpdate(
         { _id: divisionId, isDeleted: false },
-        { $addToSet: { employee_key: { _id : EmployeeId } } }, // pakai $addToSet biar gak duplikat
+        { $addToSet: { employee_key:  EmployeeId  } }, // pakai $addToSet biar gak duplikat
         { new: true }
         );
       }
@@ -93,11 +93,11 @@ class DivisionService {
 
       if (status === "A" || status === "P") {
         updateQuery = {
-          $addToSet: { employee_key: { _id: employee_id } }, // tambah employee_id
+          $addToSet: { employee_key: employee_id  }, // tambah employee_id
         };
       } else if (status === "D") {
         updateQuery = {
-          $pull: { employee_key: { _id: employee_id } }, // hapus employee_id
+          $pull: { employee_key:  employee_id  }, // hapus employee_id
         };
       } else {
         throw new Error("Status tidak valid");

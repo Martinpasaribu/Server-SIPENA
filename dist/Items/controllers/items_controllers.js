@@ -205,11 +205,12 @@ class ItemsControllers {
                 }
                 // 3. Hapus item dari division lama (kalau ada)
                 if (oldDivisionKey) {
-                    yield models_division_1.default.findOneAndUpdate({ _id: oldDivisionKey, isDeleted: false }, { $pull: { item_key: { _id: updatedItem._id } } });
+                    yield models_division_1.default.findOneAndUpdate({ _id: oldDivisionKey, isDeleted: false }, { $pull: { item_key: updatedItem._id } } // cukup ObjectId langsung
+                    );
                 }
                 // 4. Tambahkan item ke division baru
                 if (division_key) {
-                    yield models_division_1.default.findOneAndUpdate({ _id: division_key, isDeleted: false }, { $addToSet: { item_key: { _id: updatedItem._id } } }, // pakai $addToSet biar gak duplikat
+                    yield models_division_1.default.findOneAndUpdate({ _id: division_key, isDeleted: false }, { $addToSet: { item_key: updatedItem._id } }, // bukan object
                     { new: true });
                 }
                 if (!updatedItem) {

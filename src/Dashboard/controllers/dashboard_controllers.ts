@@ -3,8 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Request, Response } from "express";
 import CustomerModel from '../../Employee/models/employee_models';
 import FacilityModel from '../../Facility/models/facility_models';
-import BookingModel from '../../Booking/models/booking_models';
-import RoomModel from '../../Room/models/room_models';
 import ReportModel from '../../Report/models/report_models';
 import EmployeeModel from '../../Employee/models/employee_models';
 import DivisionModel from '../../Division/models/models_division';
@@ -84,36 +82,43 @@ export class DashboardControllers {
                 ]);
                 
                 // --- Statistik Laporan per Divisi Berdasarkan Tahun & Bulan ---
-                const reportDivision = await ReportModel.aggregate([
-                {
-                    $match: {
-                    isDeleted: false,
-                    "division_key._id": { $exists: true, $ne: null }
-                    }
-                },
-                {
-                    $group: {
-                    _id: {
-                        code: "$division_key.code",
-                        year: { $year: "$createdAt" },
-                        month: { $month: "$createdAt" }
-                    },
-                    qty: { $sum: 1 }
-                    }
-                },
-                {
-                    $project: {
-                    _id: 0,
-                    code: "$_id.code",
-                    year: "$_id.year",
-                    month: "$_id.month",
-                    qty: 1
-                    }
-                },
-                {
-                    $sort: { name: 1, year: 1, month: 1 }
+                // Ambil semua report + populate division
+                const reports = await ReportModel.find({
+                isDeleted: false,
+                division_key: { $exists: true, $ne: null },
+                })
+                .populate("division_key", "code name") // cuma ambil field tertentu
+                .lean(); // biar lebih ringan, return plain object
+
+                // Sekarang grouping di JS
+                const grouped: Record<string, { year: number; month: number; code: string; qty: number }> = {};
+
+                reports.forEach((report) => {
+                const division = report.division_key as any; // hasil populate
+                if (!division) return;
+
+                const date = new Date(report.createdAt);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1; // 0-based → 1-based
+                const code = division.code;
+
+                const key = `${code}-${year}-${month}`;
+
+                if (!grouped[key]) {
+                    grouped[key] = { code, year, month, qty: 0 };
                 }
-                ]);
+                grouped[key].qty += 1;
+                });
+
+                // Hasil akhir dalam bentuk array
+                const reportDivision = Object.values(grouped).sort(
+                (a, b) =>
+                    a.code.localeCompare(b.code) ||
+                    a.year - b.year ||
+                    a.month - b.month
+                );
+
+
 
                 const pendingReports = await ReportModel.find({
                     isDeleted: false,
@@ -185,7 +190,7 @@ export class DashboardControllers {
                     if (item._id === "A") name = "Antrian";
                     else if (item._id === "P") name = "Dalam Proses";
                     else if (item._id === "S") name = "Selesai";
-                    else if (item._id === "T") name = "Di Tolak ";
+                    else if (item._id === "T") name = "Di Tolak";
                     else if (item._id === "RU") name = "Review Ulang";
                     
                     return {

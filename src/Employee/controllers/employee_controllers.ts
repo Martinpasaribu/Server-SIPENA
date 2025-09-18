@@ -16,8 +16,8 @@ export class EmployeeController {
 
         try {
 
-            const customer = await EmployeeModel.find().populate({
-                path: "division_key._id", // masuk ke field dalam array
+            const customer = await EmployeeModel.find({isDeleted: false}).populate({
+                path: "division_key", // masuk ke field dalam array
                 model: "Division",        // pastikan model Division sudah didefinisikan
             });
             

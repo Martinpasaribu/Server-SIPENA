@@ -52,11 +52,11 @@ export class AuthController {
             req.session.userId = userId;
 
             const accessToken = jwt.sign({ userId, username, email }, process.env.ACCESS_TOKEN_SECRET as string, {
-                expiresIn: '15m'
+                expiresIn: '30m'
             });
 
             const refreshToken = jwt.sign({ userId, username, email }, process.env.REFRESH_TOKEN_SECRET as string, {
-                expiresIn: '30m'
+                expiresIn: '1d'
             });
 
             await EmployeeModel.findOneAndUpdate(
@@ -167,11 +167,11 @@ export class AuthController {
             req.session.userId = userId;
 
             const accessToken = jwt.sign({ userId, name, email }, process.env.ACCESS_TOKEN_SECRET as string, {
-                expiresIn: '2m'
+                expiresIn: '30m'
             });
 
             const refreshToken = jwt.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET as string, {
-                expiresIn: '1m'
+                expiresIn: '1d'
             });
 
             // const accessToken = jwt.sign(
@@ -430,33 +430,42 @@ export class AuthController {
               }
 
               const user = await EmployeeModel.findOne(
-                  {_id: req.session.userId},
+
+                  { _id: req.session.userId },
+
                   {
-                      _id:true,
-                      username:true,
-                      phone:true,
-                      email:true,
-                      division_key: true,
-                      status: true,
-                      role: true,
+
+                    _id:true,
+                    username:true,
+                    phone:true,
+                    email:true,
+                    division_key: true,
+                    status: true,
+                    role: true,
                     
                   }
           
               ).populate({
-                path: "division_key._id", // masuk ke field dalam array
-                model: "Division",        // pastikan model Division sudah didefinisikan
-            });;
+                path: "division_key",   // populate Division
+                model: "Division",
+                populate: {
+                  path: "item_key",     // <-- nested populate ke Items
+                  model: "Items",
+                  select: "name code status ", // ambil field yang dibutuhkan
+                },
+              }
+              ) .lean();
 
-              if(!user) return res.status(404).json({ message: "Your session-Id no register", success: false });
 
-              
-          
-              res.status(200).json({
-                  requestId: uuidv4(),
-                  data: user,
-                  message: "Your session-Id exists",
-                  success: true
-              });
+            if(!user) return res.status(404).json({ message: "Your session-Id no register", success: false });
+
+
+            res.status(200).json({
+                requestId: uuidv4(),
+                data: user,
+                message: "Your session-Id exists",
+                success: true
+            });
               
           } catch (error) {
               

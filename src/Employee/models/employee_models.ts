@@ -50,13 +50,13 @@ interface IEmployee extends Document {
 const EmployeeSchema : Schema = new Schema(
     {
 
-        division_key: [{
-            _id : {  
+        division_key: [
+            {  
                     type: mongoose.Schema.Types.ObjectId,  
                     ref:'Division', 
                     trim: true 
-                }
             }
+            
         ],
 
         user_id: {

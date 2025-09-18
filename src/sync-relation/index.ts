@@ -14,7 +14,7 @@ class SyncRelationDataModel {
         divisionId,
         {
           $addToSet: {
-            employee_key: { _id: employeeId }
+            employee_key:  employeeId 
           }
         },
         { new: true }
@@ -40,7 +40,7 @@ class SyncRelationDataModel {
         {
           // Menggunakan operator $pull untuk menghapus objek dari array
           $pull: {
-            employee_key: { _id: employeeId }
+            employee_key: employeeId 
           }
         },
         { new: true } // Mengembalikan dokumen yang telah diperbarui
@@ -70,7 +70,7 @@ class SyncRelationDataModel {
                 {
                     // Menggunakan operator $pull untuk menghapus objek dari array
                     $pull: {
-                        division_key: { _id: divisionId }
+                        division_key: divisionId 
                     }
                 },
                 { new: true } // Mengembalikan dokumen yang telah diperbarui

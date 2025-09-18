@@ -36,8 +36,8 @@ class EmployeeController {
     static GetEmployee(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const customer = yield employee_models_2.default.find().populate({
-                    path: "division_key._id", // masuk ke field dalam array
+                const customer = yield employee_models_2.default.find({ isDeleted: false }).populate({
+                    path: "division_key", // masuk ke field dalam array
                     model: "Division", // pastikan model Division sudah didefinisikan
                 });
                 res.status(200).json({

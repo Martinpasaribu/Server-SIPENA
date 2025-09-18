@@ -88,36 +88,33 @@ class DashboardControllers {
                     },
                 ]);
                 // --- Statistik Laporan per Divisi Berdasarkan Tahun & Bulan ---
-                const reportDivision = yield report_models_1.default.aggregate([
-                    {
-                        $match: {
-                            isDeleted: false,
-                            "division_key._id": { $exists: true, $ne: null }
-                        }
-                    },
-                    {
-                        $group: {
-                            _id: {
-                                code: "$division_key.code",
-                                year: { $year: "$createdAt" },
-                                month: { $month: "$createdAt" }
-                            },
-                            qty: { $sum: 1 }
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 0,
-                            code: "$_id.code",
-                            year: "$_id.year",
-                            month: "$_id.month",
-                            qty: 1
-                        }
-                    },
-                    {
-                        $sort: { name: 1, year: 1, month: 1 }
+                // Ambil semua report + populate division
+                const reports = yield report_models_1.default.find({
+                    isDeleted: false,
+                    division_key: { $exists: true, $ne: null },
+                })
+                    .populate("division_key", "code name") // cuma ambil field tertentu
+                    .lean(); // biar lebih ringan, return plain object
+                // Sekarang grouping di JS
+                const grouped = {};
+                reports.forEach((report) => {
+                    const division = report.division_key; // hasil populate
+                    if (!division)
+                        return;
+                    const date = new Date(report.createdAt);
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1; // 0-based → 1-based
+                    const code = division.code;
+                    const key = `${code}-${year}-${month}`;
+                    if (!grouped[key]) {
+                        grouped[key] = { code, year, month, qty: 0 };
                     }
-                ]);
+                    grouped[key].qty += 1;
+                });
+                // Hasil akhir dalam bentuk array
+                const reportDivision = Object.values(grouped).sort((a, b) => a.code.localeCompare(b.code) ||
+                    a.year - b.year ||
+                    a.month - b.month);
                 const pendingReports = yield report_models_1.default.find({
                     isDeleted: false,
                     progress: "A",
@@ -191,7 +188,7 @@ class DashboardControllers {
                     else if (item._id === "S")
                         name = "Selesai";
                     else if (item._id === "T")
-                        name = "Di Tolak ";
+                        name = "Di Tolak";
                     else if (item._id === "RU")
                         name = "Review Ulang";
                     return {

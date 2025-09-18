@@ -43,19 +43,11 @@ const ReportSchema = new mongoose.Schema({
     },
     
     division_key: {
-        _id : {
+
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Division',
             required: false,
-        },
-        name : {
-            type: String,
-            required: false,
-        },
-        code : {
-            type: String,
-            required: false,
-        }
+      
     },
 
     facility_key: { 
