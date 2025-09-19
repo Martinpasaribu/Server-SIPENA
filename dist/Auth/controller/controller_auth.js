@@ -312,7 +312,7 @@ class AuthController {
                 }
                 const user = yield models_admin_1.default.findOne({ _id: req.session.userId }, {
                     uuid: true,
-                    name: true,
+                    username: true,
                     phone: true,
                     email: true,
                 });
