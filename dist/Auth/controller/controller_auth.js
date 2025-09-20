@@ -312,10 +312,12 @@ class AuthController {
                 }
                 const user = yield models_admin_1.default.findOne({ _id: req.session.userId }, {
                     uuid: true,
+                    user_id: true,
                     username: true,
                     phone: true,
                     email: true,
                     role: true,
+                    createdAt: true
                 });
                 if (!user)
                     return res.status(404).json({ message: "Your session-Id no register", success: false });
