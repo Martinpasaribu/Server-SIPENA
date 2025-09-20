@@ -315,6 +315,7 @@ class AuthController {
                     username: true,
                     phone: true,
                     email: true,
+                    role: true,
                 });
                 if (!user)
                     return res.status(404).json({ message: "Your session-Id no register", success: false });

@@ -183,7 +183,7 @@ class EmployeeController {
             }
             const oldEmployee = yield employee_models_2.default.findById(_id);
             if (!oldEmployee) {
-                return res.status(404).json({ success: false, message: "Item not found" });
+                return res.status(404).json({ success: false, message: "oldEmployee not found" });
             }
             try {
                 // Hash password jika ada

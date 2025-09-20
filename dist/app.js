@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const router_admin_1 = __importDefault(require("./Admin/route/router_admin"));
 const router_auth_1 = __importDefault(require("./Auth/route/router_auth"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_mongodb_session_1 = __importDefault(require("connect-mongodb-session"));
@@ -69,7 +68,6 @@ app.use('/api/v1/dashboard', Dashboard_1.default);
 app.use('/api/v1/facility', Facility_1.default);
 app.use('/api/v1/items', Items_1.default);
 app.use('/api/v1/management-customer', Employee_1.default);
-app.use('/api/v1/user-admin', router_admin_1.default);
 app.use('/api/v1/admin', Admin_1.default);
 app.use('/api/v1/auth', router_auth_1.default);
 exports.default = app;

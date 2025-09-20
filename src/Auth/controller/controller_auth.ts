@@ -387,6 +387,7 @@ export class AuthController {
                       username:true,
                       phone:true,
                       email:true,
+                      role:true,
                     
                   }
           

@@ -12,14 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
+exports.AdminController = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uuid_1 = require("uuid");
 const dotenv_1 = __importDefault(require("dotenv"));
 const models_admin_1 = __importDefault(require("../models/models_admin"));
 dotenv_1.default.config();
-class UserController {
+class AdminController {
     static getUser(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const users = yield models_admin_1.default.find();
+                res.status(200).json(users);
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    static GetAllAdmin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const users = yield models_admin_1.default.find();
@@ -64,7 +75,7 @@ class UserController {
     }
     static Register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { user_id, name, email, password, phone, role } = req.body;
+            const { user_id, username, email, password, phone, role } = req.body;
             try {
                 // 1. Cek apakah email sudah terdaftar
                 const existingUser = yield models_admin_1.default.findOne({ user_id, email });
@@ -85,7 +96,7 @@ class UserController {
                 // 4. Simpan user ke DB
                 const user = yield models_admin_1.default.create({
                     user_id,
-                    name,
+                    username,
                     email,
                     role,
                     password: hashPassword || undefined,
@@ -110,5 +121,83 @@ class UserController {
             }
         });
     }
+    static UpdateAdmin(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { _id } = req.params;
+            const { username, email, user_id, password, role } = req.body;
+            if (!_id) {
+                return res.status(400).json({ success: false, message: "ID kosong" });
+            }
+            const oldAdmin = yield models_admin_1.default.findById(_id);
+            if (!oldAdmin) {
+                return res.status(404).json({ success: false, message: "oldAdmin not found" });
+            }
+            try {
+                const updateData = {};
+                // isi hanya kalau ada datanya
+                if (username && username.trim() !== "")
+                    updateData.username = username;
+                if (email && email.trim() !== "")
+                    updateData.email = email;
+                if (user_id && user_id.trim() !== "")
+                    updateData.user_id = user_id;
+                if (role && role.trim() !== "")
+                    updateData.role = role;
+                if (password && password.trim() !== "") {
+                    const salt = yield bcrypt_1.default.genSalt();
+                    updateData.password = yield bcrypt_1.default.hash(password, salt);
+                }
+                const updated = yield models_admin_1.default.findOneAndUpdate({ _id, isDeleted: false }, { $set: updateData }, { new: true, runValidators: true });
+                if (!updated) {
+                    return res.status(404).json({ success: false, message: "Admin tidak ditemukan" });
+                }
+                return res.status(200).json({
+                    success: true,
+                    message: "Admin berhasil diupdate",
+                    data: updated
+                });
+            }
+            catch (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message || "Server error"
+                });
+            }
+        });
+    }
+    // Update Role Admin
+    static UpdateRole(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { _id } = req.params;
+                const { role } = req.body;
+                if (!_id) {
+                    return res.status(400).json({ success: false, message: "ID kosong" });
+                }
+                if (!role) {
+                    return res.status(400).json({ success: false, message: "Role wajib diisi" });
+                }
+                // Validasi role
+                const validRoles = ["A", "CA", "SA"];
+                if (!validRoles.includes(role)) {
+                    return res.status(400).json({ success: false, message: "Role tidak valid" });
+                }
+                const updated = yield models_admin_1.default.findOneAndUpdate({ _id, isDeleted: false }, { role }, { new: true, runValidators: true });
+                if (!updated) {
+                    return res.status(404).json({ success: false, message: "Admin tidak ditemukan" });
+                }
+                return res.status(200).json({
+                    success: true,
+                    message: "Role admin berhasil diperbarui",
+                    data: updated,
+                });
+            }
+            catch (err) {
+                return res
+                    .status(500)
+                    .json({ success: false, message: err.message || "Server error" });
+            }
+        });
+    }
 }
-exports.UserController = UserController;
+exports.AdminController = AdminController;

@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
-import { UserController } from "../controller/controller_admin";
+import { AdminController } from "../controller/controller_admin";
 
 
-const UserRouter: express.Router = express.Router();
+const AdminRouter: express.Router = express.Router();
 
 
 
@@ -11,10 +11,13 @@ const UserRouter: express.Router = express.Router();
 
 // User
 
-UserRouter.get("/getUser", UserController.getUser)
-UserRouter.post("/register", UserController.Register)
+AdminRouter.get("/getUser", AdminController.getUser)
+AdminRouter.get("/", AdminController.GetAllAdmin)
+AdminRouter.post("/register", AdminController.Register)
+AdminRouter.patch("/update/:_id", AdminController.UpdateAdmin)
+AdminRouter.patch("/update-role/:_id", AdminController.UpdateRole)
 
 
 
 
-export default UserRouter;
+export default AdminRouter;

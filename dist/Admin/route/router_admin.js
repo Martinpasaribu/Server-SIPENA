@@ -5,9 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const controller_admin_1 = require("../controller/controller_admin");
-const UserRouter = express_1.default.Router();
+const AdminRouter = express_1.default.Router();
 // semantic meaning
 // User
-UserRouter.get("/getUser", controller_admin_1.UserController.getUser);
-UserRouter.post("/register", controller_admin_1.UserController.Register);
-exports.default = UserRouter;
+AdminRouter.get("/getUser", controller_admin_1.AdminController.getUser);
+AdminRouter.get("/", controller_admin_1.AdminController.GetAllAdmin);
+AdminRouter.post("/register", controller_admin_1.AdminController.Register);
+AdminRouter.patch("/update/:_id", controller_admin_1.AdminController.UpdateAdmin);
+AdminRouter.patch("/update-role/:_id", controller_admin_1.AdminController.UpdateRole);
+exports.default = AdminRouter;

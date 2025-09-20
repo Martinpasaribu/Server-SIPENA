@@ -189,7 +189,7 @@ export class EmployeeController {
         const oldEmployee = await EmployeeModel.findById(_id);
         
         if (!oldEmployee) {
-            return res.status(404).json({ success: false, message: "Item not found" });
+            return res.status(404).json({ success: false, message: "oldEmployee not found" });
         }
 
         try {
