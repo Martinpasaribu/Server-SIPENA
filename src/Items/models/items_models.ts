@@ -7,6 +7,7 @@ export interface Items extends Document {
   _id: string;
   facility_key: string;
   name: string;
+  code: string;
   nup: string;
   qty: number;
   desc: string;
@@ -25,9 +26,10 @@ const ItemsSchema = new mongoose.Schema(
     },
 
     name : { type: String, unique: false, required: false },
-    nup  : { type: String, unique: true, required: false },
-    qty  : { type: Number, required: true, default: 1 },
-    desc : { type: String, unique: true, required: false },
+    nup  : { type: String, unique: false, required: false },
+    code  : { type: String, unique: true, required: false },
+    qty  : { type: Number, required: false, default: 1 },
+    desc : { type: String, unique: false, required: false },
 
     division_key : { 
         type: mongoose.Schema.Types.ObjectId,

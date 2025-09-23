@@ -6,128 +6,112 @@ import DivisionModel from '../../Division/models/models_division';
 import mongoose from 'mongoose';
 import FacilityModel from '../../Facility/models/facility_models';
 import { DivisionServices } from '../../Division/service/service_division';
+import { GenerateItemCode } from '../constant';
 
 export class ItemsControllers {
 
 
         static async PostItems(req: any, res: any) {
+        const { name, nup, desc, division_key, status } = req.body;
+        const { facility_key } = req.params;
 
-            const { name, nup, desc, division_key, status } = req.body;
-            const { facility_key } = req.params
-
-            try {
-
-                // 1. Validasi input
-
-                if (!name || !facility_key || !nup  || !desc || !division_key) {
-                    return res.status(400).json({
-                        requestId: uuidv4(),
-                        message: ` All fields can't be empty `,
-                        success: false,
-                    });
-                }
-
-                // 2. Cek apakah code sudah ada di DB
-
-
-                const facilityFind = await FacilityModel.findOne(
-                    { _id:facility_key, isDeleted: false }
-                );
-
-                if (!facilityFind) {
-                    return res.status(404).json({
-                        requestId: uuidv4(),
-                        message: "Facility tidak tersedia",
-                        facilityFind,
-                        success: false,
-                    });
-                }
-
-
-                // 2. Cek apakah code sudah ada di DB
-                const existingRoom = await ItemModel.findOne({ nup: nup });
-                
-                if (existingRoom) {
-
-                    return res.status(409).json({
-                        requestId: uuidv4(),
-                        message: " NUP sudah digunakan ",
-                        success: false,
-                    });
-
-                }
-
-                // 3. Cek apakah code sudah ada di DB
-                const division = await DivisionModel.findOne({ _id:division_key, status: false });
-                
-                if (division) {
-
-                    return res.status(409).json({
-                        requestId: uuidv4(),
-                        message: " division yang dipilih sudah tidak aktif ", 
-                        division,
-                        existingRoom,
-                        success: false,
-                    });
-
-                }
-
-                // 3. Create room
-                const newItem = await ItemModel.create({
-
-                    name,
-                    facility_key,
-                    division_key,
-                    nup,
-                    desc,
-                    status,
-
-                });
-
-                // ✅ Update Division -> tambahkan item ke division yang dipilih
-                await DivisionModel.findOneAndUpdate(
-                    { _id: division_key, isDeleted: false },
-                    { 
-                        $push: { item_key: { _id: newItem._id } }, // masukkan id item baru
-                    },
-                    { new: true }
-                );
-
-
-                const facility = await FacilityModel.findOneAndUpdate(
-                    { _id:facility_key, isDeleted: false },
-                    { $inc: { qty: 1 } },
-                    { new: true } // ✅ return document setelah update
-                );
-
-                if (!facility) {
-                    return res.status(404).json({
-                        requestId: uuidv4(),
-                        message: "Facility tidak tersedia",
-                        facility,
-                        success: false,
-                    });
-                }
-
-                // 4. Response sukses
-                return res.status(201).json({
-                    requestId: uuidv4(),
-                    data: newItem,
-                    message: " Successfully created items ",
-                    success: true,
-                });
-
-            } catch (error) {
-                // 5. Tangkap error
-                return res.status(500).json({
-                    requestId: uuidv4(),
-                    data: null,
-                    message: (error as Error).message,
-                    success: false,
-                });
+        try {
+            // 1. Validasi input
+            if (!name || !facility_key || !nup || !desc || !division_key) {
+            return res.status(400).json({
+                requestId: uuidv4(),
+                message: ` All fields can't be empty `,
+                success: false,
+            });
             }
-        }
 
+            // 2. Validasi facility
+            const facilityFind = await FacilityModel.findOne({
+            _id: facility_key,
+            isDeleted: false,
+            });
+
+            if (!facilityFind) {
+            return res.status(404).json({
+                requestId: uuidv4(),
+                message: "Facility tidak tersedia",
+                facilityFind,
+                success: false,
+            });
+            }
+
+            // 3. Validasi division
+            const division = await DivisionModel.findOne({
+            _id: division_key,
+            status: false,
+            });
+
+            if (division) {
+            return res.status(409).json({
+                requestId: uuidv4(),
+                message: " division yang dipilih sudah tidak aktif ",
+                division,
+                success: false,
+            });
+            }
+
+            // 4. Generate kode item baru
+            const generatedCode = await GenerateItemCode();
+
+            // 5. Create Item
+            const newItem = await ItemModel.create({
+            code: generatedCode, // simpan kode item di sini
+            name,
+            facility_key,
+            division_key,
+            nup,
+            desc,
+            status,
+            createdAt: new Date(),
+            });
+
+            // ✅ Update Division
+            await DivisionModel.findOneAndUpdate(
+            { _id: division_key, isDeleted: false },
+            { $push: { item_key: { _id: newItem._id } } },
+            { new: true }
+            );
+
+            // ✅ Update Facility qty
+            const facility = await FacilityModel.findOneAndUpdate(
+            { _id: facility_key, isDeleted: false },
+            { $inc: { qty: 1 } },
+            { new: true }
+            );
+
+            if (!facility) {
+            return res.status(404).json({
+                requestId: uuidv4(),
+                message: "Facility tidak tersedia",
+                facility,
+                success: false,
+            });
+            }
+
+            // 6. Response sukses
+            return res.status(201).json({
+            requestId: uuidv4(),
+            data: {
+                ...newItem.toObject(),
+            },
+            message: " Successfully created items ",
+            success: true,
+            });
+        } catch (error) {
+            return res.status(500).json({
+            requestId: uuidv4(),
+            data: null,
+            message: (error as Error).message,
+            success: false,
+            });
+        }
+        }
+        
         static async GetItems (req : any , res:any)  {
 
             try {
@@ -502,4 +486,8 @@ export class ItemsControllers {
         }
 
         // Sub Data
+}
+
+function FormatDateMongoDBWithTime(createdAt: any) {
+    throw new Error('Function not implemented.');
 }

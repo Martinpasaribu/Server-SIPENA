@@ -127,9 +127,6 @@ class AuthController {
                 if (!match) {
                     return res.status(400).json({ message: "Wrong password" });
                 }
-                if (req.body.password !== req.body.password) {
-                    return res.status(400).json({ message: "Passwords are not the same" });
-                }
                 const userId = user._id;
                 const name = user.username;
                 const email = user.email;

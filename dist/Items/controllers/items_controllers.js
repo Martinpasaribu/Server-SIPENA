@@ -18,6 +18,7 @@ const items_models_1 = __importDefault(require("../models/items_models"));
 const models_division_1 = __importDefault(require("../../Division/models/models_division"));
 const facility_models_1 = __importDefault(require("../../Facility/models/facility_models"));
 const service_division_1 = require("../../Division/service/service_division");
+const constant_1 = require("../constant");
 class ItemsControllers {
     static PostItems(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,8 +33,11 @@ class ItemsControllers {
                         success: false,
                     });
                 }
-                // 2. Cek apakah code sudah ada di DB
-                const facilityFind = yield facility_models_1.default.findOne({ _id: facility_key, isDeleted: false });
+                // 2. Validasi facility
+                const facilityFind = yield facility_models_1.default.findOne({
+                    _id: facility_key,
+                    isDeleted: false,
+                });
                 if (!facilityFind) {
                     return res.status(404).json({
                         requestId: (0, uuid_1.v4)(),
@@ -42,41 +46,36 @@ class ItemsControllers {
                         success: false,
                     });
                 }
-                // 2. Cek apakah code sudah ada di DB
-                const existingRoom = yield items_models_1.default.findOne({ nup: nup });
-                if (existingRoom) {
-                    return res.status(409).json({
-                        requestId: (0, uuid_1.v4)(),
-                        message: " NUP sudah digunakan ",
-                        success: false,
-                    });
-                }
-                // 3. Cek apakah code sudah ada di DB
-                const division = yield models_division_1.default.findOne({ _id: division_key, status: false });
+                // 3. Validasi division
+                const division = yield models_division_1.default.findOne({
+                    _id: division_key,
+                    status: false,
+                });
                 if (division) {
                     return res.status(409).json({
                         requestId: (0, uuid_1.v4)(),
                         message: " division yang dipilih sudah tidak aktif ",
                         division,
-                        existingRoom,
                         success: false,
                     });
                 }
-                // 3. Create room
+                // 4. Generate kode item baru
+                const generatedCode = yield (0, constant_1.GenerateItemCode)();
+                // 5. Create Item
                 const newItem = yield items_models_1.default.create({
+                    code: generatedCode, // simpan kode item di sini
                     name,
                     facility_key,
                     division_key,
                     nup,
                     desc,
                     status,
+                    createdAt: new Date(),
                 });
-                // ✅ Update Division -> tambahkan item ke division yang dipilih
-                yield models_division_1.default.findOneAndUpdate({ _id: division_key, isDeleted: false }, {
-                    $push: { item_key: { _id: newItem._id } }, // masukkan id item baru
-                }, { new: true });
-                const facility = yield facility_models_1.default.findOneAndUpdate({ _id: facility_key, isDeleted: false }, { $inc: { qty: 1 } }, { new: true } // ✅ return document setelah update
-                );
+                // ✅ Update Division
+                yield models_division_1.default.findOneAndUpdate({ _id: division_key, isDeleted: false }, { $push: { item_key: { _id: newItem._id } } }, { new: true });
+                // ✅ Update Facility qty
+                const facility = yield facility_models_1.default.findOneAndUpdate({ _id: facility_key, isDeleted: false }, { $inc: { qty: 1 } }, { new: true });
                 if (!facility) {
                     return res.status(404).json({
                         requestId: (0, uuid_1.v4)(),
@@ -85,16 +84,15 @@ class ItemsControllers {
                         success: false,
                     });
                 }
-                // 4. Response sukses
+                // 6. Response sukses
                 return res.status(201).json({
                     requestId: (0, uuid_1.v4)(),
-                    data: newItem,
+                    data: Object.assign({}, newItem.toObject()),
                     message: " Successfully created items ",
                     success: true,
                 });
             }
             catch (error) {
-                // 5. Tangkap error
                 return res.status(500).json({
                     requestId: (0, uuid_1.v4)(),
                     data: null,
@@ -391,3 +389,6 @@ class ItemsControllers {
     }
 }
 exports.ItemsControllers = ItemsControllers;
+function FormatDateMongoDBWithTime(createdAt) {
+    throw new Error('Function not implemented.');
+}

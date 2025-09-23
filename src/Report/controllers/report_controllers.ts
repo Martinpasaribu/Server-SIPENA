@@ -117,6 +117,10 @@ export class ReportControllers {
             const reports = await ReportModel.find({ isDeleted: false })
             .populate({ path: "employee_key" })
             .populate('division_key')
+            .populate({
+                path: "facility_key",
+                select: "name status", // hanya ambil field tertentu
+            })
             .sort({ createdAt: -1 });
 
             if (!reports || reports.length === 0) {

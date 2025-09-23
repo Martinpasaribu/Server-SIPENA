@@ -11,9 +11,10 @@ const ItemsSchema = new mongoose_1.default.Schema({
         required: true
     },
     name: { type: String, unique: false, required: false },
-    nup: { type: String, unique: true, required: false },
-    qty: { type: Number, required: true, default: 1 },
-    desc: { type: String, unique: true, required: false },
+    nup: { type: String, unique: false, required: false },
+    code: { type: String, unique: true, required: false },
+    qty: { type: Number, required: false, default: 1 },
+    desc: { type: String, unique: false, required: false },
     division_key: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Division', required: false, default: null

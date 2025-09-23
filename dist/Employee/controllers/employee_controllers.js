@@ -103,7 +103,7 @@ class EmployeeController {
                     }
                 }
                 // 1. Cek apakah user_id sudah ada
-                const existingUser = yield employee_models_2.default.findOne({ username });
+                const existingUser = yield employee_models_2.default.findOne({ username, isDelete: false });
                 if (existingUser) {
                     return res.status(400).json({
                         requestId: (0, uuid_1.v4)(),
@@ -122,7 +122,7 @@ class EmployeeController {
                     });
                 }
                 // 3. Cek apakah email & phone sudah ada
-                const existingOrder = yield employee_models_2.default.findOne({ email: email, phone: phone });
+                const existingOrder = yield employee_models_2.default.findOne({ email: email, phone: phone, isDelete: false });
                 if (existingOrder) {
                     return res.status(409).json({
                         requestId: (0, uuid_1.v4)(),

@@ -98,7 +98,7 @@ export class EmployeeController {
             }
 
             // 1. Cek apakah user_id sudah ada
-            const existingUser = await EmployeeModel.findOne({ username });
+            const existingUser = await EmployeeModel.findOne({ username, isDelete: false });
             if (existingUser) {
                 return res.status(400).json({
                     requestId: uuidv4(),
@@ -119,7 +119,7 @@ export class EmployeeController {
             }
 
             // 3. Cek apakah email & phone sudah ada
-            const existingOrder = await EmployeeModel.findOne({ email: email, phone: phone });
+            const existingOrder = await EmployeeModel.findOne({ email: email, phone: phone , isDelete: false});
             if (existingOrder) {
                 return res.status(409).json({
                     requestId: uuidv4(),
