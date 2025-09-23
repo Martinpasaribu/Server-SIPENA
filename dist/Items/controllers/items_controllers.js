@@ -20,6 +20,7 @@ const facility_models_1 = __importDefault(require("../../Facility/models/facilit
 const service_division_1 = require("../../Division/service/service_division");
 const constant_1 = require("../constant");
 class ItemsControllers {
+    // Baru update
     static PostItems(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, nup, desc, division_key, status } = req.body;

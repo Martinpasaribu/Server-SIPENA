@@ -10,8 +10,9 @@ import { GenerateItemCode } from '../constant';
 
 export class ItemsControllers {
 
-
+        // Baru update
         static async PostItems(req: any, res: any) {
+        
         const { name, nup, desc, division_key, status } = req.body;
         const { facility_key } = req.params;
 
@@ -111,7 +112,7 @@ export class ItemsControllers {
             });
         }
         }
-        
+
         static async GetItems (req : any , res:any)  {
 
             try {
