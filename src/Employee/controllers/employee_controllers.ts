@@ -98,12 +98,12 @@ export class EmployeeController {
             }
 
             // 1. Cek apakah user_id sudah ada
-            const existingUser = await EmployeeModel.findOne({ username, isDelete: false });
+            const existingUser = await EmployeeModel.findOne({ user_id, username, isDelete: false });
             if (existingUser) {
                 return res.status(400).json({
                     requestId: uuidv4(),
                     data: null,
-                    message: `Username ${username} sudah terdaftar.`,
+                    message: `UserID: ${user_id} atau Username: ${username} sudah terdaftar.`,
                     success: false
                 });
             }
@@ -234,6 +234,94 @@ export class EmployeeController {
     }
     }
 
+
+    static async UpdateEmployeeClient(req: Request, res: Response) {
+    
+        const { _id } = req.params;
+        const { username, email, user_id, phone, password } = req.body;
+    
+        if (!_id) {
+            return res.status(400).json({ success: false, message: "ID kosong" });
+        }
+    
+        const oldAdmin = await EmployeeModel.findById(_id);
+        if (!oldAdmin) {
+            return res.status(404).json({ success: false, message: "oldEmployee not found" });
+        }
+    
+        
+        try {
+            const updateData: any = {};
+    
+            // isi hanya kalau ada datanya
+            if (username && username.trim() !== "") updateData.username = username;
+            if (email && email.trim() !== "") updateData.email = email;
+            if (user_id && user_id.trim() !== "") updateData.user_id = user_id;
+            if (phone !== undefined && phone !== null && String(phone).trim() !== "") {
+                updateData.phone = String(phone).trim();
+            }
+            if (password && password.trim() !== "") {
+                const salt = await bcrypt.genSalt();
+                updateData.password = await bcrypt.hash(password, salt);
+            }
+    
+            // 1. Cek apakah user_id sudah ada
+            const existingUser = await EmployeeModel.findOne({ user_id: user_id, username: username , isDelete: false });
+            if (existingUser) {
+                return res.status(400).json({
+                    requestId: uuidv4(),
+                    data: null,
+                    message: `UserID: ${user_id} atau Username: ${username} sudah terdaftar.`,
+                    success: false
+                });
+            }
+
+            if(email){
+                
+                // 2. Validasi format email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    return res.status(400).json({
+                        requestId: uuidv4(),
+                        message: "Format email tidak valid.",
+                        success: false,
+                    });
+                }
+            }
+
+            // 3. Cek apakah email & phone sudah ada
+            const existingOrder = await EmployeeModel.findOne({email, phone , isDelete: false});
+            if (existingOrder) {
+                return res.status(409).json({
+                    requestId: uuidv4(),
+                    message: `Email ${email} atau ${phone} sudah ada, gunakan yang lain.`,
+                    success: false,
+                });
+            }
+
+            const updated = await EmployeeModel.findOneAndUpdate(
+                { _id, isDeleted: false },
+                { $set: updateData },
+                { new: true, runValidators: true }
+            );
+    
+            if (!updated) {
+                return res.status(404).json({ success: false, message: "Profile tidak ditemukan" });
+            }
+    
+            return res.status(200).json({
+                success: true,
+                message: "Profile berhasil diupdate",
+                data: updated
+            });
+
+        } catch (err: any) {
+            return res.status(500).json({
+            success: false,
+            message: err.message || "Server error"
+            });
+        }
+     }
 
     static async DeletedEmployee(req: Request, res: Response) {
         const { _id } = req.params;

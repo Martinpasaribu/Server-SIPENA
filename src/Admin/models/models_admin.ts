@@ -5,6 +5,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 interface IAdmin extends Document {
     user_id: string,
     username : string;
+    phone: number;
     password: string;
     email : string;
     role : string;
@@ -55,6 +56,13 @@ const AdminSchema: Schema = new Schema(
             type: Boolean,
             required: false,
             default: true,
+            trim: true,
+        },  
+
+        phone: {
+            type: Number,
+            required: false,
+            default: 0,
             trim: true,
         },      
 

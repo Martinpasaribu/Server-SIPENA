@@ -86,8 +86,8 @@ class ReportControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const { customer_id } = req.params;
             try {
-                const users = yield report_models_1.default.find({ employee_key: customer_id, isDeleted: false }).populate("employee_key").sort({ createdAt: -1 });
-                ;
+                const users = yield report_models_1.default.find({ employee_key: customer_id, isDeleted: false })
+                    .populate("employee_key").sort({ createdAt: -1 });
                 res.status(200).json({
                     requestId: (0, uuid_1.v4)(),
                     data: users,

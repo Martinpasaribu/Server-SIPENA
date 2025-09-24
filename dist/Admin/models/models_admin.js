@@ -69,6 +69,12 @@ const AdminSchema = new mongoose_1.Schema({
         default: true,
         trim: true,
     },
+    phone: {
+        type: Number,
+        required: false,
+        default: 0,
+        trim: true,
+    },
     password: {
         type: String,
         // required: [true, "password cannot be empty"],

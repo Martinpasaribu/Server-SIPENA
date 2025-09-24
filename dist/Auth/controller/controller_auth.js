@@ -348,11 +348,13 @@ class AuthController {
                 const user = yield employee_models_1.default.findOne({ _id: req.session.userId }, {
                     _id: true,
                     username: true,
+                    user_id: true,
                     phone: true,
                     email: true,
                     division_key: true,
                     status: true,
                     role: true,
+                    createdAt: true,
                 }).populate({
                     path: "division_key", // populate Division
                     model: "Division",

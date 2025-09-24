@@ -15,6 +15,7 @@ EmployeeRouter.post("/", EmployeeController.CreateEmployee)
 EmployeeRouter.put("/:_id", EmployeeController.UpdateEmployee);
 EmployeeRouter.put("/status/:_id", EmployeeController.UpdateEmployeeStatus);
 EmployeeRouter.delete("/:_id", EmployeeController.DeletedEmployee);
+EmployeeRouter.patch("/update/:_id", EmployeeController.UpdateEmployeeClient);
 
 
 export default EmployeeRouter;

@@ -76,15 +76,38 @@ export class AdminController {
         try {
 
             // 1. Cek apakah email sudah terdaftar
-            const existingUser = await AdminModel.findOne({ user_id,email });
+            const existingUser = await AdminModel.findOne({ user_id, username, isDeleted:false });
             if (existingUser) {
                 return res.status(400).json({
                     requestId: uuidv4(),
                     data: null,
-                    message: `UserID ${email} sudah terdaftar.`,
+                    message: `UserID: ${user_id} atau Username: ${username} sudah terdaftar.`,
                     success: false
                 });
             }
+
+            
+
+            // 2. Validasi format email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({
+                    requestId: uuidv4(),
+                    message: "Format email tidak valid.",
+                    success: false,
+                });
+            }
+
+            // 3. Cek apakah email & phone sudah ada
+            const existingOrder = await AdminModel.findOne({ email: email, phone, isDelete: false});
+            if (existingOrder) {
+                return res.status(409).json({
+                    requestId: uuidv4(),
+                    message: `Email ${email} atau ${phone} sudah ada, gunakan yang lain.`,
+                    success: false,
+                });
+            }
+
    
     
             let hashPassword = "";
@@ -128,7 +151,7 @@ export class AdminController {
     static async UpdateAdmin(req: Request, res: Response) {
 
     const { _id } = req.params;
-    const { username, email, user_id, password, role } = req.body;
+    const { username, email, user_id, phone, password, role } = req.body;
 
     if (!_id) {
         return res.status(400).json({ success: false, message: "ID kosong" });
@@ -147,16 +170,52 @@ export class AdminController {
         if (email && email.trim() !== "") updateData.email = email;
         if (user_id && user_id.trim() !== "") updateData.user_id = user_id;
         if (role && role.trim() !== "") updateData.role = role;
-
+        if (phone !== undefined && phone !== null && String(phone).trim() !== "") {
+            updateData.phone = String(phone).trim();
+        }
         if (password && password.trim() !== "") {
         const salt = await bcrypt.genSalt();
         updateData.password = await bcrypt.hash(password, salt);
         }
 
+            // 1. Cek apakah user_id sudah ada
+            const existingUser = await AdminModel.findOne({ user_id: user_id, username: username , isDelete: false });
+            if (existingUser) {
+                return res.status(400).json({
+                    requestId: uuidv4(),
+                    data: null,
+                    message: `UserID: ${user_id} atau Username: ${username} sudah terdaftar.`,
+                    success: false
+                });
+            }
+
+            // 2. Validasi format email
+            if(email){
+                // 2. Validasi format email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    return res.status(400).json({
+                        requestId: uuidv4(),
+                        message: "Format email tidak valid.",
+                        success: false,
+                    });
+                }
+            }
+
+            // 3. Cek apakah email & phone sudah ada
+            const existingOrder = await AdminModel.findOne({ email: email, phone , isDelete: false});
+            if (existingOrder) {
+                return res.status(409).json({
+                    requestId: uuidv4(),
+                    message: `Email ${email} atau ${phone} sudah ada, gunakan yang lain.`,
+                    success: false,
+                });
+            }
+
         const updated = await AdminModel.findOneAndUpdate(
-        { _id, isDeleted: false },
-        { $set: updateData },
-        { new: true, runValidators: true }
+            { _id, isDeleted: false },
+            { $set: updateData },
+            { new: true, runValidators: true }
         );
 
         if (!updated) {
@@ -164,10 +223,11 @@ export class AdminController {
         }
 
         return res.status(200).json({
-        success: true,
-        message: "Admin berhasil diupdate",
-        data: updated
+            success: true,
+            message: "Admin berhasil diupdate",
+            data: updated
         });
+
     } catch (err: any) {
         return res.status(500).json({
         success: false,

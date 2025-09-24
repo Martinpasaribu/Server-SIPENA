@@ -87,8 +87,10 @@ export class ReportControllers {
 
             try {
 
-                const users = await ReportModel.find({ employee_key: customer_id,  isDeleted:false}).populate("employee_key").sort({ createdAt: -1 });;
-                
+                const users = await ReportModel.find(
+                    { employee_key: customer_id,  isDeleted:false})
+                    .populate("employee_key").sort({ createdAt: -1 })
+
                 res.status(200).json({
                     requestId: uuidv4(),
                     data: users,

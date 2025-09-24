@@ -436,11 +436,13 @@ export class AuthController {
 
                     _id:true,
                     username:true,
+                    user_id: true,
                     phone:true,
                     email:true,
                     division_key: true,
                     status: true,
                     role: true,
+                    createdAt:true,
                     
                   }
           
