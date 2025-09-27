@@ -1,27 +1,22 @@
-import ItemModel from "../models/contact_models";
+import ContactModel from "../models/contact_models";
 
-// helper untuk format tanggal
-function formatDateCode(date: Date): string {
-  const yy = String(date.getFullYear()).slice(-2);
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  return yy + mm + dd;
-}
+export async function GenerateContactCode(uniqe: string): Promise<string> {
+  if (!uniqe || uniqe.length < 2) {
+    throw new Error("contact name minimal 2 karakter");
+  }
 
-export async function GenerateItemCode(): Promise<string> {
+  const prefix = uniqe.slice(0, 2).toUpperCase();
   const today = new Date();
-  const dateCode = formatDateCode(today);
+  const day = String(today.getDate()).padStart(2, "0");
 
-  // hitung jumlah item yang dibuat hari ini
-  const countToday = await ItemModel.countDocuments({
-    createdAt: {
-      $gte: new Date(today.setHours(0, 0, 0, 0)),
-      $lt: new Date(today.setHours(23, 59, 59, 999)),
-    },
-  });
+  let runningNumber = 1;
+  let newCode = `C-${prefix}${day}-${String(runningNumber).padStart(3, "0")}`;
 
-  // running number 3 digit
-  const runningNumber = String(countToday + 1).padStart(3, "0");
+  // Loop sampai kode belum ada di DB
+  while (await ContactModel.exists({ code: newCode })) {
+    runningNumber++;
+    newCode = `C-${prefix}${day}-${String(runningNumber).padStart(3, "0")}`;
+  }
 
-  return `C-${dateCode}-${runningNumber}`;
+  return newCode;
 }

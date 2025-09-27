@@ -14,8 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContactControllers = void 0;
 const uuid_1 = require("uuid");
-const constant_1 = require("../constant");
 const contact_models_1 = __importDefault(require("../models/contact_models"));
+const constant_1 = require("../constant");
 class ContactControllers {
     // Baru update
     static PostContact(req, res) {
@@ -31,7 +31,7 @@ class ContactControllers {
                     });
                 }
                 // 4. Generate kode item baru
-                const generatedCode = yield (0, constant_1.GenerateItemCode)();
+                const generatedCode = yield (0, constant_1.GenerateContactCode)(name);
                 // 5. Create Item
                 const newItem = yield contact_models_1.default.create({
                     code: generatedCode, // simpan kode item di sini

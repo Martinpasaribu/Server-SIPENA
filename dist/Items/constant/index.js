@@ -14,26 +14,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GenerateItemCode = GenerateItemCode;
 const items_models_1 = __importDefault(require("../models/items_models"));
-// helper untuk format tanggal
-function formatDateCode(date) {
-    const yy = String(date.getFullYear()).slice(-2);
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    return yy + mm + dd;
-}
-function GenerateItemCode() {
+function GenerateItemCode(uniqe) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (!uniqe || uniqe.length < 2) {
+            throw new Error("Facility name minimal 2 karakter");
+        }
+        const prefix = uniqe.slice(0, 2).toUpperCase();
         const today = new Date();
-        const dateCode = formatDateCode(today);
-        // hitung jumlah item yang dibuat hari ini
-        const countToday = yield items_models_1.default.countDocuments({
-            createdAt: {
-                $gte: new Date(today.setHours(0, 0, 0, 0)),
-                $lt: new Date(today.setHours(23, 59, 59, 999)),
-            },
-        });
-        // running number 3 digit
-        const runningNumber = String(countToday + 1).padStart(3, "0");
-        return `I-${dateCode}-${runningNumber}`;
+        const day = String(today.getDate()).padStart(2, "0");
+        let runningNumber = 1;
+        let newCode = `I-${prefix}${day}-${String(runningNumber).padStart(3, "0")}`;
+        // Loop sampai kode belum ada di DB
+        while (yield items_models_1.default.exists({ code: newCode })) {
+            runningNumber++;
+            newCode = `I-${prefix}${day}-${String(runningNumber).padStart(3, "0")}`;
+        }
+        return newCode;
     });
 }

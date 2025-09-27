@@ -59,7 +59,7 @@ export class ItemsControllers {
             }
 
             // 4. Generate kode item baru
-            const generatedCode = await GenerateItemCode();
+            const generatedCode = await GenerateItemCode(facilityFind.name);
 
             // 5. Create Item
             const newItem = await ItemModel.create({

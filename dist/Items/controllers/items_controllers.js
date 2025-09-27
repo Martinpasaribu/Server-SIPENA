@@ -62,7 +62,7 @@ class ItemsControllers {
                     });
                 }
                 // 4. Generate kode item baru
-                const generatedCode = yield (0, constant_1.GenerateItemCode)();
+                const generatedCode = yield (0, constant_1.GenerateItemCode)(facilityFind.name);
                 // 5. Create Item
                 const newItem = yield items_models_1.default.create({
                     code: generatedCode, // simpan kode item di sini

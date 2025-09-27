@@ -6,9 +6,9 @@ import DivisionModel from '../../Division/models/models_division';
 import mongoose from 'mongoose';
 import FacilityModel from '../../Facility/models/facility_models';
 import { DivisionServices } from '../../Division/service/service_division';
-import { GenerateItemCode } from '../constant';
 import { FacilityServices } from '../../Facility/services/service_facility';
 import ContactModel from '../models/contact_models';
+import { GenerateContactCode } from '../constant';
 
 export class ContactControllers {
 
@@ -28,7 +28,7 @@ export class ContactControllers {
             }
 
             // 4. Generate kode item baru
-            const generatedCode = await GenerateItemCode();
+            const generatedCode = await GenerateContactCode(name);
 
             // 5. Create Item
             const newItem = await ContactModel.create({
