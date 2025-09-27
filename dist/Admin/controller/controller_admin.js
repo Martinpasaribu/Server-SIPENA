@@ -33,7 +33,7 @@ class AdminController {
     static GetAllAdmin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const users = yield models_admin_1.default.find();
+                const users = yield models_admin_1.default.find({ isDeleted: false });
                 res.status(200).json(users);
             }
             catch (error) {
@@ -135,6 +135,47 @@ class AdminController {
                     data: null,
                     message: error.message || "Terjadi kesalahan pada server.",
                     success: false
+                });
+            }
+        });
+    }
+    // Soft delete admin
+    static DeleteAdmin(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { _id } = req.params;
+            if (!_id) {
+                return res.status(400).json({
+                    requestId: (0, uuid_1.v4)(),
+                    success: false,
+                    message: "ID admin tidak boleh kosong",
+                });
+            }
+            try {
+                const admin = yield models_admin_1.default.findById(_id);
+                if (!admin) {
+                    return res.status(404).json({
+                        requestId: (0, uuid_1.v4)(),
+                        success: false,
+                        message: "Admin tidak ditemukan",
+                    });
+                }
+                // Soft delete: ubah isDeleted menjadi true
+                admin.isDeleted = true;
+                yield admin.save();
+                return res.status(200).json({
+                    requestId: (0, uuid_1.v4)(),
+                    success: true,
+                    message: "Admin berhasil dihapus",
+                    data: admin,
+                });
+            }
+            catch (error) {
+                console.error("❌ Error DeleteAdmin:", error);
+                return res.status(500).json({
+                    requestId: (0, uuid_1.v4)(),
+                    success: false,
+                    message: "Terjadi kesalahan saat menghapus admin",
+                    error: error.message,
                 });
             }
         });

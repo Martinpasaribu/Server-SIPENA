@@ -8,6 +8,8 @@ import { sendTelegramMessage } from '../../utils/Telegram';
 import { TypeBroken, TypeReport } from '../constant';
 import EmployeeModel from '../../Employee/models/employee_models';
 import { populate } from 'dotenv';
+import Facility from '../../Facility';
+import FacilityModel from '../../Facility/models/facility_models';
 
 export class ReportControllers {
 
@@ -51,10 +53,13 @@ export class ReportControllers {
                     status: true,
                 });
 
+                const facilityDoc = await FacilityModel.findById(facility_key).select('name');
+               
                 const Detail_Report = {
                     id: newReport.report_code,
                     name: employee?.username || "-",  
                     divisi: employee?.division_key || "-",  
+                    facility: facilityDoc?.name || "-",    
                     tipe_Kerusakan: TypeBroken(broken_type), // translate pakai helper
                     tipe_Report: TypeReport(report_type),    // translate pakai helper
                     desc: complain_des? complain_des : broken_des,

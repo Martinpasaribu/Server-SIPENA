@@ -1,17 +1,20 @@
 import axios from "axios";
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-function formatDate(date?: Date): string {
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+function formatDate(date?: string | Date): string {
   if (!date) return "-";
-  return new Date(date).toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return dayjs(date)
+    .tz("Asia/Makassar") // WITA (UTC+8)
+    .format("DD MMM YYYY HH:mm"); // contoh: 27 Sep 2025 16:05
 }
 
 export async function sendTelegramMessage(message: string, data?: Record<string, any>) {
@@ -19,12 +22,13 @@ export async function sendTelegramMessage(message: string, data?: Record<string,
     let detailText = "";
 
     if (data) {
-      detailText = `
+detailText = `
 <b>📋 Detail Report</b>
 ${formatDate(data.createdAt)}
 ━━━━━━━━━━━━━━
 #️⃣ <b>ID:</b> ${data.id ?? "-"}
 🛠 <b>Tipe Report:</b> ${data.tipe_Report ?? "-"}
+🛠 <b>Fasilitas:</b> ${data.facility ?? "-"}
 ▶️ <b>Tipe Kerusakan:</b> ${data.tipe_Kerusakan ?? "-"}
 👤 <b>Karyawan:</b> ${data.name ?? "-"}
 🔧 <b>Deskripsi:</b> ${data.desc ?? "-"}

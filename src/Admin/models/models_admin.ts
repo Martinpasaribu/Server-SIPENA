@@ -14,7 +14,9 @@ interface IAdmin extends Document {
     refresh_token: string;
     createAt : number;
     creatorId: string;    
+    isDeleted: boolean;
 }
+
 
 
 

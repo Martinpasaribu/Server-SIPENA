@@ -23,7 +23,7 @@ export class AdminController {
     static async GetAllAdmin (req : any, res:any) {
 
         try {
-            const users = await AdminModel.find();
+            const users = await AdminModel.find({isDeleted:false});
             res.status(200).json(users);
         } catch (error) {
             console.log(error);
@@ -147,7 +147,50 @@ export class AdminController {
         }
     }
 
-    
+    // Soft delete admin
+    static async DeleteAdmin(req: Request, res: Response) {
+        const { _id } = req.params;
+
+        if (!_id) {
+        return res.status(400).json({
+            requestId: uuidv4(),
+            success: false,
+            message: "ID admin tidak boleh kosong",
+        });
+        }
+
+        try {
+        const admin = await AdminModel.findById(_id);
+
+        if (!admin) {
+            return res.status(404).json({
+            requestId: uuidv4(),
+            success: false,
+            message: "Admin tidak ditemukan",
+            });
+        }
+
+        // Soft delete: ubah isDeleted menjadi true
+        admin.isDeleted = true;
+        await admin.save();
+
+        return res.status(200).json({
+            requestId: uuidv4(),
+            success: true,
+            message: "Admin berhasil dihapus",
+            data: admin,
+        });
+        } catch (error: any) {
+        console.error("❌ Error DeleteAdmin:", error);
+        return res.status(500).json({
+            requestId: uuidv4(),
+            success: false,
+            message: "Terjadi kesalahan saat menghapus admin",
+            error: error.message,
+        });
+        }
+    }
+
     static async UpdateAdmin(req: Request, res: Response) {
 
     const { _id } = req.params;

@@ -14,22 +14,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendTelegramMessage = sendTelegramMessage;
 const axios_1 = __importDefault(require("axios"));
+const dayjs_1 = __importDefault(require("dayjs"));
+const utc_1 = __importDefault(require("dayjs/plugin/utc"));
+const timezone_1 = __importDefault(require("dayjs/plugin/timezone"));
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+dayjs_1.default.extend(utc_1.default);
+dayjs_1.default.extend(timezone_1.default);
 function formatDate(date) {
     if (!date)
         return "-";
-    return new Date(date).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    return (0, dayjs_1.default)(date)
+        .tz("Asia/Makassar") // WITA (UTC+8)
+        .format("DD MMM YYYY HH:mm"); // contoh: 27 Sep 2025 16:05
 }
 function sendTelegramMessage(message, data) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         try {
             let detailText = "";
             if (data) {
@@ -39,9 +40,10 @@ ${formatDate(data.createdAt)}
 ━━━━━━━━━━━━━━
 #️⃣ <b>ID:</b> ${(_a = data.id) !== null && _a !== void 0 ? _a : "-"}
 🛠 <b>Tipe Report:</b> ${(_b = data.tipe_Report) !== null && _b !== void 0 ? _b : "-"}
-▶️ <b>Tipe Kerusakan:</b> ${(_c = data.tipe_Kerusakan) !== null && _c !== void 0 ? _c : "-"}
-👤 <b>Karyawan:</b> ${(_d = data.name) !== null && _d !== void 0 ? _d : "-"}
-🔧 <b>Deskripsi:</b> ${(_e = data.desc) !== null && _e !== void 0 ? _e : "-"}
+🛠 <b>Fasilitas:</b> ${(_c = data.facility) !== null && _c !== void 0 ? _c : "-"}
+▶️ <b>Tipe Kerusakan:</b> ${(_d = data.tipe_Kerusakan) !== null && _d !== void 0 ? _d : "-"}
+👤 <b>Karyawan:</b> ${(_e = data.name) !== null && _e !== void 0 ? _e : "-"}
+🔧 <b>Deskripsi:</b> ${(_f = data.desc) !== null && _f !== void 0 ? _f : "-"}
 ━━━━━━━━━━━━━━
 `;
             }
@@ -54,7 +56,7 @@ ${formatDate(data.createdAt)}
                         [
                             {
                                 text: "🔗 Cek di Sistem",
-                                url: `https://admin-report.vercel.app/dashboard/report/${(_f = data === null || data === void 0 ? void 0 : data.id) !== null && _f !== void 0 ? _f : ""}`,
+                                url: `https://admin-report.vercel.app/dashboard/report/${(_g = data === null || data === void 0 ? void 0 : data.id) !== null && _g !== void 0 ? _g : ""}`,
                             },
                         ],
                     ],
@@ -64,7 +66,7 @@ ${formatDate(data.createdAt)}
             return response.data;
         }
         catch (error) {
-            console.error("❌ Error sending message to Telegram:", ((_g = error.response) === null || _g === void 0 ? void 0 : _g.data) || error.message);
+            console.error("❌ Error sending message to Telegram:", ((_h = error.response) === null || _h === void 0 ? void 0 : _h.data) || error.message);
             throw error;
         }
     });

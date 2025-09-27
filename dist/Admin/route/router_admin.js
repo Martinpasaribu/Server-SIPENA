@@ -12,6 +12,7 @@ const AdminRouter = express_1.default.Router();
 AdminRouter.get("/getUser", controller_admin_1.AdminController.getUser);
 AdminRouter.get("/", controller_admin_1.AdminController.GetAllAdmin);
 AdminRouter.post("/register", VerifyAdminId_1.verifyAdmin, controller_admin_1.AdminController.Register);
+AdminRouter.delete("/:_id", VerifyAdminId_1.verifyAdmin, controller_admin_1.AdminController.DeleteAdmin);
 AdminRouter.patch("/update/:_id", controller_admin_1.AdminController.UpdateAdmin);
 AdminRouter.patch("/update-role/:_id", controller_admin_1.AdminController.UpdateRole);
 AdminRouter.patch("/update-role/:_id", controller_admin_1.AdminController.UpdateRole);

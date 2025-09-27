@@ -20,6 +20,7 @@ const Generate_code_1 = require("../../utils/Generate_code");
 const Telegram_1 = require("../../utils/Telegram");
 const constant_1 = require("../constant");
 const employee_models_1 = __importDefault(require("../../Employee/models/employee_models"));
+const facility_models_1 = __importDefault(require("../../Facility/models/facility_models"));
 class ReportControllers {
     static PostReport(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -54,10 +55,12 @@ class ReportControllers {
                     image: image || "", // langsung ambil dari req.body.image
                     status: true,
                 });
+                const facilityDoc = yield facility_models_1.default.findById(facility_key).select('name');
                 const Detail_Report = {
                     id: newReport.report_code,
                     name: (employee === null || employee === void 0 ? void 0 : employee.username) || "-",
                     divisi: (employee === null || employee === void 0 ? void 0 : employee.division_key) || "-",
+                    facility: (facilityDoc === null || facilityDoc === void 0 ? void 0 : facilityDoc.name) || "-",
                     tipe_Kerusakan: (0, constant_1.TypeBroken)(broken_type), // translate pakai helper
                     tipe_Report: (0, constant_1.TypeReport)(report_type), // translate pakai helper
                     desc: complain_des ? complain_des : broken_des,
