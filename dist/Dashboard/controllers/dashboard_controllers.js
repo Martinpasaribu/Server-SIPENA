@@ -120,6 +120,28 @@ class DashboardControllers {
                     progress: "A",
                     createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) } // lebih dari 1 hari
                 }).select("report_code report_type division_key name createdAt -_id");
+                const latestReportsRaw = yield report_models_1.default.find({ isDeleted: false })
+                    .sort({ updatedAt: -1 }) // urut dari terbaru
+                    .limit(5)
+                    .populate("employee_key", "name") // populate nama employee
+                    .populate("division_key", "name") // populate nama division
+                    .populate("facility_key", "name"); // populate nama facility
+                // map langsung jadi format yang FE butuhkan
+                const latestReports = latestReportsRaw.map((report) => {
+                    var _a, _b;
+                    const type = report.progress === "T" ? "Laporan Selesai" : "Laporan Baru";
+                    const facilityName = ((_a = report.facility_key) === null || _a === void 0 ? void 0 : _a.name) || ((_b = report.division_key) === null || _b === void 0 ? void 0 : _b.name) || "Tidak Diketahui";
+                    const description = `${facilityName} - ${report.broken_des}`;
+                    const date = new Date(report.updatedAt || report.createdAt).toLocaleDateString("id-ID");
+                    const status = report.progress === "T" ? "Selesai" : "Menunggu";
+                    return {
+                        id: report._id.toString(), // <- ini unik untuk key React
+                        type,
+                        description,
+                        date,
+                        status,
+                    };
+                });
                 // 4. Response sukses
                 return res.status(201).json({
                     requestId: (0, uuid_1.v4)(),
@@ -133,6 +155,7 @@ class DashboardControllers {
                         itemFacility, // Data statistik laporan baru
                         reportDivision, // Data statistik laporan baru
                         pendingReports,
+                        latestReports
                     },
                     message: "Successfully fetched dashboard info.",
                     success: true,

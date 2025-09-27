@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { Division } from '../../Division/models/models_division';
 import { Employee } from '../../Employee/models/employee_models';
+import { FacilityMapping } from '../../Facility/models/facility_models';
 
 interface IRepair {
     price : number,
@@ -17,7 +18,7 @@ interface IReport extends Document{
     report_code:  string,
     employee_key: Employee[],
     division_key: IDivision_keys,
-    facility_key: string,
+    facility_key: FacilityMapping,
     report_type:  "BK" | "M" | "BL" | "K";
     broken_type:  "R" | "S" | "B";
     progress:     "A" | "P" | "S" | "T" | "RU";
@@ -29,6 +30,7 @@ interface IReport extends Document{
     status:       boolean,
     image:        string,
     createdAt:    Date
+    updatedAt: Date
 }
 
 const ReportSchema = new mongoose.Schema({

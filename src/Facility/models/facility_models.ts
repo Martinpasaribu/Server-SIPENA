@@ -18,6 +18,21 @@ interface Item {
 }
 
 
+export interface FacilityMapping{
+  code: string;
+  name: string;
+  qty: number;
+  desc: string;
+  items_key: Item[];
+  status: "A" | "R" | "B" ; // A ; available, R : Repair, T : tidak digunakan
+  unit: "D" | "U" | "B" ; // D : dummy, U ; unit, B : buah
+  data_before : Data1; 
+  data_after : Data2; 
+  category: "BK" | "M" | "BL" ;
+  isDeleted: boolean;
+}
+
+
 export interface IFacility extends Document {
   code: string;
   name: string;
