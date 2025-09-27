@@ -2,6 +2,8 @@
 import { v4 as uuidv4 } from 'uuid'; 
 import { Request, Response } from "express";
 import FacilityModel from '../models/facility_models';
+import { SyncRelationData } from '../../sync-relation';
+import ItemModel from '../../Items/models/items_models';
 
 export class FacilityControllers {
 
@@ -178,54 +180,64 @@ export class FacilityControllers {
         }
 
         static async DeletedFacility(req: Request, res: Response) {
-            const { _id } = req.params;
-    
-            if (!_id) {
-                return res.status(400).json({
-                requestId: uuidv4(),
-                message: "ID Division tidak boleh kosong",
-                success: false,
-                });
-            }
-    
-            try {
-                
-                const deleted = await FacilityModel.findByIdAndDelete(_id);
-    
-                if (!deleted) {
-                    return res.status(404).json({
-                        requestId: uuidv4(),
-                        message: "Division tidak ditemukan",
-                        success: false,
-                    });
-                }
-    
-                // 2. Hapus referensi Divisi dari setiap karyawan yang terhubung
-                // 🔹 Lakukan perulangan pada array employee_key
-                // if (deleted.items_key && deleted.items_key.length > 0) {
-                //     const employeeKeys = deleted.items_key.map(emp => emp._id.toString());
-                    
-                //     // Gunakan Promise.all untuk menjalankan semua penghapusan secara paralel
-                //     await Promise.all(employeeKeys.map(employeeId => 
-                //         SyncRelationData.RemoveDivisionFromEmployee(employeeId, deleted.employee_key.toString())
-                //     ));
-                // }
-    
-                return res.status(200).json({
-                    requestId: uuidv4(),
-                    message: "Berhasil menghapus employee",
-                    // UpdateRoom: UpdateRoom,
-                    success: true,
-                });
-    
-            } catch (error: any) {
-                return res.status(500).json({
-                requestId: uuidv4(),
-                message: error.message || "Terjadi kesalahan server",
-                success: false,
-                });
-            }
+        const { _id } = req.params;
+
+        if (!_id) {
+            return res.status(400).json({
+            requestId: uuidv4(),
+            message: "ID Facility tidak boleh kosong",
+            success: false,
+            });
         }
+
+        try {
+            // ✅ Ambil facility + populate items_key (tanpa nested)
+            const facility = await FacilityModel.findById(_id).populate("items_key");
+
+            if (!facility) {
+            return res.status(404).json({
+                requestId: uuidv4(),
+                message: "Facility tidak ditemukan",
+                success: false,
+            });
+            }
+
+            // ✅ Jika ada items di facility
+            if (facility.items_key && facility.items_key.length > 0) {
+            await Promise.all(
+                facility.items_key.map(async (item: any) => {
+                const divisionId = item.division_key?.toString();
+                const itemId = item._id.toString();
+
+                // 1️⃣ Hapus referensi item di Division
+                if (divisionId) {
+                    await SyncRelationData.DelFacilityOnItemsKeyToDivision(divisionId, itemId);
+                }
+
+                // 2️⃣ Hapus item-nya dari koleksi Items
+                await ItemModel.findByIdAndDelete(itemId);
+                })
+            );
+            }
+
+            // ✅ 3️⃣ Hapus facility-nya
+            await FacilityModel.findByIdAndDelete(_id);
+
+            return res.status(200).json({
+            requestId: uuidv4(),
+            message: "Facility dan item terkait berhasil dihapus",
+            success: true,
+            });
+
+        } catch (error: any) {
+            return res.status(500).json({
+            requestId: uuidv4(),
+            message: error.message || "Terjadi kesalahan server",
+            success: false,
+            });
+        }
+        }
+
     
         static async UpdateFacilityStatus(req: Request, res: Response) {
     

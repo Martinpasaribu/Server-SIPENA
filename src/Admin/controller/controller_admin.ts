@@ -236,7 +236,6 @@ export class AdminController {
     }
     }
 
-
     // Update Role Admin
     static async UpdateRole(req: Request, res: Response) {
         try {
@@ -278,5 +277,7 @@ export class AdminController {
             .json({ success: false, message: err.message || "Server error" });
         }
     }
+
+
 
 }

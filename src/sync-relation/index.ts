@@ -116,6 +116,20 @@ class SyncRelationDataModel {
         }
     }
 
+  async DelFacilityOnItemsKeyToDivision(DivisionId: string, ItemsId: string) {
+    if (!DivisionId || !ItemsId) {
+      throw new Error("DivisionId dan ItemsId harus diisi");
+    }
+
+    await DivisionModel.findOneAndUpdate(
+      { _id: DivisionId, isDeleted: false },
+      { $pull: { item_key: ItemsId } },
+      { new: true }
+    );
+
+    console.log("✅ Hapus referensi item:", ItemsId, "dari division:", DivisionId);
+  }
+
 }
 
 export const SyncRelationData = new SyncRelationDataModel();

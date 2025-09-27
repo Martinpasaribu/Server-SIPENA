@@ -75,6 +75,70 @@ export class EmployeeController {
         }
     }
 
+static async GetIFacilityOnDivisionEmployee(req: any, res: any) {
+  const { id } = req.params;
+
+  try {
+    const employee = await EmployeeModel.findOne(
+    { _id: id, isDeleted: false },
+    "_id division_key user_id" // ambil hanya _id dan division_key
+    )
+    .populate({
+        path: "division_key",
+        select: "code _id name item_key", // ambil hanya field code dan item_key
+        populate: {
+        path: "item_key",
+        select: "_id name code desc qty facility_key", // field yang dibutuhkan dari item_key
+        populate: {
+            path: "facility_key",
+            model: "Facility",
+            select: "_id name code category", // hanya field yang dipakai dari Facility
+        },
+        },
+    });
+
+    if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+    // Transform data menjadi format yang diinginkan
+    const formattedData = {
+      division: employee.division_key.map((division: any) => ({
+        _id: division._id,
+        name: division.name,
+        code: division.code,
+        items: division.item_key.map((item: any) => ({
+          item: {
+            _id: item._id,
+            name: item.name,
+            code: item.code,
+            desc: item.desc,
+            qty: item.qty,
+          },
+          facility: {
+            facility_key: item.facility_key?._id,
+            name: item.facility_key?.name,
+            code: item.facility_key?.code,
+            category: item.facility_key?.category,
+          },
+        })),
+      })),
+    };
+
+    return res.status(201).json({
+        requestId: uuidv4(),
+        data: {
+            user_id:employee.user_id,
+            data: formattedData
+        },
+        message: "Data Facility On Division Employee",
+        success: true
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+    
 
     static async CreateEmployee(req: any, res: any) {
         const {  username, email, password, phone, role, division_key} = req.body;

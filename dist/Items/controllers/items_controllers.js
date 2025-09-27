@@ -19,6 +19,7 @@ const models_division_1 = __importDefault(require("../../Division/models/models_
 const facility_models_1 = __importDefault(require("../../Facility/models/facility_models"));
 const service_division_1 = require("../../Division/service/service_division");
 const constant_1 = require("../constant");
+const service_facility_1 = require("../../Facility/services/service_facility");
 class ItemsControllers {
     // Baru update
     static PostItems(req, res) {
@@ -76,20 +77,15 @@ class ItemsControllers {
                 // ✅ Update Division
                 yield models_division_1.default.findOneAndUpdate({ _id: division_key, isDeleted: false }, { $push: { item_key: { _id: newItem._id } } }, { new: true });
                 // ✅ Update Facility qty
-                const facility = yield facility_models_1.default.findOneAndUpdate({ _id: facility_key, isDeleted: false }, { $inc: { qty: 1 } }, { new: true });
-                if (!facility) {
-                    return res.status(404).json({
-                        requestId: (0, uuid_1.v4)(),
-                        message: "Facility tidak tersedia",
-                        facility,
-                        success: false,
-                    });
-                }
+                yield facility_models_1.default.findOneAndUpdate({ _id: facility_key, isDeleted: false }, { $inc: { qty: 1 } }, { new: true });
+                // ✅ Update Facility item_key pakai helper
+                yield service_facility_1.FacilityServices.UpdateFacilityItemKey(facility_key, newItem._id.toString());
                 // 6. Response sukses
+                // ✅ Response sukses
                 return res.status(201).json({
                     requestId: (0, uuid_1.v4)(),
-                    data: Object.assign({}, newItem.toObject()),
-                    message: " Successfully created items ",
+                    data: newItem,
+                    message: "Successfully created item",
                     success: true,
                 });
             }
@@ -245,25 +241,41 @@ class ItemsControllers {
                 });
             }
             try {
-                // const deleted = await ItemModel.findByIdAndDelete(_id);
-                const deleted = yield items_models_1.default.findByIdAndUpdate(_id, { isDeleted: true }, { new: true });
-                if (!deleted) {
+                const item = yield items_models_1.default.findById(_id);
+                if (!item) {
                     return res.status(404).json({
                         requestId: (0, uuid_1.v4)(),
                         message: "Items tidak ditemukan",
                         success: false,
                     });
                 }
-                // ambil _id facility dari item yang dihapus
-                const facilityId = deleted.facility_key;
-                const UpdateItems = yield facility_models_1.default.findOneAndUpdate({ _id: facilityId }, { $inc: { qty: -1 } }, // kurangi qty sebanyak 1
-                { new: true } // kembalikan dokumen terbaru
-                );
+                // 🔹 Soft delete (isDeleted: true)
+                const deleted = yield items_models_1.default.findByIdAndUpdate(_id, { isDeleted: true }, { new: true });
+                // 🔹 Pastikan ada facility_key
+                const facilityId = deleted === null || deleted === void 0 ? void 0 : deleted.facility_key;
+                if (!facilityId) {
+                    return res.status(400).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Facility ID tidak ditemukan pada item ini.",
+                        success: false,
+                    });
+                }
+                // 🔹 Update Facility:
+                // - Kurangi qty 1
+                // - Hapus item dari items_key
+                const updatedFacility = yield facility_models_1.default.findOneAndUpdate({ _id: facilityId, isDeleted: false }, {
+                    $inc: { qty: -1 },
+                    $pull: { items_key: deleted._id },
+                }, { new: true });
+                // 🔹 Safety: pastikan qty tidak negatif
+                if (updatedFacility && updatedFacility.qty < 0) {
+                    yield facility_models_1.default.findByIdAndUpdate(facilityId, { $set: { qty: 0 } });
+                }
                 yield service_division_1.DivisionServices.DelItemsKeyToDivision(deleted._id, deleted.division_key);
                 return res.status(200).json({
                     requestId: (0, uuid_1.v4)(),
                     message: "Berhasil menghapus Items",
-                    UpdateItems,
+                    updatedFacility,
                     success: true,
                 });
             }

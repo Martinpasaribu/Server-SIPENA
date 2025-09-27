@@ -11,6 +11,7 @@ const EmployeeRouter: express.Router = express.Router();
 
 
 EmployeeRouter.get("/", EmployeeController.GetEmployee)
+EmployeeRouter.get("/facility-on-division/:id", EmployeeController.GetIFacilityOnDivisionEmployee)
 EmployeeRouter.post("/", EmployeeController.CreateEmployee)
 EmployeeRouter.put("/:_id", EmployeeController.UpdateEmployee);
 EmployeeRouter.put("/status/:_id", EmployeeController.UpdateEmployeeStatus);

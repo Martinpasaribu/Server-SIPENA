@@ -17,6 +17,7 @@ AdminRouter.get("/", AdminController.GetAllAdmin)
 AdminRouter.post("/register", verifyAdmin, AdminController.Register)
 AdminRouter.patch("/update/:_id", AdminController.UpdateAdmin)
 AdminRouter.patch("/update-role/:_id", AdminController.UpdateRole)
+AdminRouter.patch("/update-role/:_id", AdminController.UpdateRole)
 
 
 

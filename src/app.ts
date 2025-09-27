@@ -14,6 +14,7 @@ import Division from './Division';
 import Employee from './Employee';
 import Items from './Items';
 import Admin from './Admin';
+import Contact from './contact';
 
 
 dotenv.config();
@@ -117,6 +118,7 @@ app.use('/api/v1/division', Division );
 app.use('/api/v1/employee', Employee );
 app.use('/api/v1/report'  , Report )  ;
 app.use('/api/v1/dashboard', Dashboard );
+app.use('/api/v1/contact', Contact );
 app.use('/api/v1/facility' , Facility ) ;
 app.use('/api/v1/items' , Items ) ;
 app.use('/api/v1/management-customer', CustomerManagementRoute);

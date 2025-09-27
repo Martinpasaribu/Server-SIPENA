@@ -19,6 +19,8 @@ class DivisionService {
     console.log(' data 2',DivisionId)
   }
 
+
+
   async DelEmployeeKeyToDivision(EmployeeId: string, DivisionId: string[]) {
     
     if (!EmployeeId && !DivisionId) {

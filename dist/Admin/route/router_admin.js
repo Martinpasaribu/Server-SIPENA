@@ -14,4 +14,5 @@ AdminRouter.get("/", controller_admin_1.AdminController.GetAllAdmin);
 AdminRouter.post("/register", VerifyAdminId_1.verifyAdmin, controller_admin_1.AdminController.Register);
 AdminRouter.patch("/update/:_id", controller_admin_1.AdminController.UpdateAdmin);
 AdminRouter.patch("/update-role/:_id", controller_admin_1.AdminController.UpdateRole);
+AdminRouter.patch("/update-role/:_id", controller_admin_1.AdminController.UpdateRole);
 exports.default = AdminRouter;

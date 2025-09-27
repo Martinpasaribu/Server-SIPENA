@@ -84,6 +84,69 @@ class EmployeeController {
             }
         });
     }
+    static GetIFacilityOnDivisionEmployee(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id } = req.params;
+            try {
+                const employee = yield employee_models_2.default.findOne({ _id: id, isDeleted: false }, "_id division_key user_id" // ambil hanya _id dan division_key
+                )
+                    .populate({
+                    path: "division_key",
+                    select: "code _id name item_key", // ambil hanya field code dan item_key
+                    populate: {
+                        path: "item_key",
+                        select: "_id name code desc qty facility_key", // field yang dibutuhkan dari item_key
+                        populate: {
+                            path: "facility_key",
+                            model: "Facility",
+                            select: "_id name code category", // hanya field yang dipakai dari Facility
+                        },
+                    },
+                });
+                if (!employee)
+                    return res.status(404).json({ message: "Employee not found" });
+                // Transform data menjadi format yang diinginkan
+                const formattedData = {
+                    division: employee.division_key.map((division) => ({
+                        _id: division._id,
+                        name: division.name,
+                        code: division.code,
+                        items: division.item_key.map((item) => {
+                            var _a, _b, _c, _d;
+                            return ({
+                                item: {
+                                    _id: item._id,
+                                    name: item.name,
+                                    code: item.code,
+                                    desc: item.desc,
+                                    qty: item.qty,
+                                },
+                                facility: {
+                                    facility_key: (_a = item.facility_key) === null || _a === void 0 ? void 0 : _a._id,
+                                    name: (_b = item.facility_key) === null || _b === void 0 ? void 0 : _b.name,
+                                    code: (_c = item.facility_key) === null || _c === void 0 ? void 0 : _c.code,
+                                    category: (_d = item.facility_key) === null || _d === void 0 ? void 0 : _d.category,
+                                },
+                            });
+                        }),
+                    })),
+                };
+                return res.status(201).json({
+                    requestId: (0, uuid_1.v4)(),
+                    data: {
+                        user_id: employee.user_id,
+                        data: formattedData
+                    },
+                    message: "Data Facility On Division Employee",
+                    success: true
+                });
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ message: "Internal server error" });
+            }
+        });
+    }
     static CreateEmployee(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { username, email, password, phone, role, division_key } = req.body;

@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FacilityControllers = void 0;
 const uuid_1 = require("uuid");
 const facility_models_1 = __importDefault(require("../models/facility_models"));
+const sync_relation_1 = require("../../sync-relation");
+const items_models_1 = __importDefault(require("../../Items/models/items_models"));
 class FacilityControllers {
     static PostFacility(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -162,32 +164,39 @@ class FacilityControllers {
             if (!_id) {
                 return res.status(400).json({
                     requestId: (0, uuid_1.v4)(),
-                    message: "ID Division tidak boleh kosong",
+                    message: "ID Facility tidak boleh kosong",
                     success: false,
                 });
             }
             try {
-                const deleted = yield facility_models_1.default.findByIdAndDelete(_id);
-                if (!deleted) {
+                // ✅ Ambil facility + populate items_key (tanpa nested)
+                const facility = yield facility_models_1.default.findById(_id).populate("items_key");
+                if (!facility) {
                     return res.status(404).json({
                         requestId: (0, uuid_1.v4)(),
-                        message: "Division tidak ditemukan",
+                        message: "Facility tidak ditemukan",
                         success: false,
                     });
                 }
-                // 2. Hapus referensi Divisi dari setiap karyawan yang terhubung
-                // 🔹 Lakukan perulangan pada array employee_key
-                // if (deleted.items_key && deleted.items_key.length > 0) {
-                //     const employeeKeys = deleted.items_key.map(emp => emp._id.toString());
-                //     // Gunakan Promise.all untuk menjalankan semua penghapusan secara paralel
-                //     await Promise.all(employeeKeys.map(employeeId => 
-                //         SyncRelationData.RemoveDivisionFromEmployee(employeeId, deleted.employee_key.toString())
-                //     ));
-                // }
+                // ✅ Jika ada items di facility
+                if (facility.items_key && facility.items_key.length > 0) {
+                    yield Promise.all(facility.items_key.map((item) => __awaiter(this, void 0, void 0, function* () {
+                        var _a;
+                        const divisionId = (_a = item.division_key) === null || _a === void 0 ? void 0 : _a.toString();
+                        const itemId = item._id.toString();
+                        // 1️⃣ Hapus referensi item di Division
+                        if (divisionId) {
+                            yield sync_relation_1.SyncRelationData.DelFacilityOnItemsKeyToDivision(divisionId, itemId);
+                        }
+                        // 2️⃣ Hapus item-nya dari koleksi Items
+                        yield items_models_1.default.findByIdAndDelete(itemId);
+                    })));
+                }
+                // ✅ 3️⃣ Hapus facility-nya
+                yield facility_models_1.default.findByIdAndDelete(_id);
                 return res.status(200).json({
                     requestId: (0, uuid_1.v4)(),
-                    message: "Berhasil menghapus employee",
-                    // UpdateRoom: UpdateRoom,
+                    message: "Facility dan item terkait berhasil dihapus",
                     success: true,
                 });
             }

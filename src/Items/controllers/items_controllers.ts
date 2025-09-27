@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import FacilityModel from '../../Facility/models/facility_models';
 import { DivisionServices } from '../../Division/service/service_division';
 import { GenerateItemCode } from '../constant';
+import { FacilityServices } from '../../Facility/services/service_facility';
 
 export class ItemsControllers {
 
@@ -41,10 +42,11 @@ export class ItemsControllers {
             });
             }
 
+            
             // 3. Validasi division
             const division = await DivisionModel.findOne({
-            _id: division_key,
-            status: false,
+                _id: division_key,
+                status: false,
             });
 
             if (division) {
@@ -73,36 +75,30 @@ export class ItemsControllers {
 
             // ✅ Update Division
             await DivisionModel.findOneAndUpdate(
-            { _id: division_key, isDeleted: false },
-            { $push: { item_key: { _id: newItem._id } } },
-            { new: true }
+                { _id: division_key, isDeleted: false },
+                { $push: { item_key: { _id: newItem._id } } },
+                { new: true }
             );
 
             // ✅ Update Facility qty
-            const facility = await FacilityModel.findOneAndUpdate(
-            { _id: facility_key, isDeleted: false },
-            { $inc: { qty: 1 } },
-            { new: true }
+            await FacilityModel.findOneAndUpdate(
+                { _id: facility_key, isDeleted: false },
+                { $inc: { qty: 1 } },
+                { new: true }
             );
 
-            if (!facility) {
-            return res.status(404).json({
-                requestId: uuidv4(),
-                message: "Facility tidak tersedia",
-                facility,
-                success: false,
-            });
-            }
+            // ✅ Update Facility item_key pakai helper
+            await FacilityServices.UpdateFacilityItemKey(facility_key, newItem._id.toString());
 
             // 6. Response sukses
+            // ✅ Response sukses
             return res.status(201).json({
             requestId: uuidv4(),
-            data: {
-                ...newItem.toObject(),
-            },
-            message: " Successfully created items ",
+            data: newItem,
+            message: "Successfully created item",
             success: true,
             });
+
         } catch (error) {
             return res.status(500).json({
             requestId: uuidv4(),
@@ -301,38 +297,56 @@ export class ItemsControllers {
     
             try {
                 
-                // const deleted = await ItemModel.findByIdAndDelete(_id);
-    
+                const item = await ItemModel.findById(_id);
+
+                if (!item) {
+                return res.status(404).json({
+                    requestId: uuidv4(),
+                    message: "Items tidak ditemukan",
+                    success: false,
+                });
+                }
+
+                // 🔹 Soft delete (isDeleted: true)
                 const deleted = await ItemModel.findByIdAndUpdate(
-                _id,
-                { isDeleted: true },
-                { new: true }
+                    _id,
+                    { isDeleted: true },
+                    { new: true }
                 );
 
-
-                if (!deleted) {
-                    return res.status(404).json({
+                // 🔹 Pastikan ada facility_key
+                const facilityId = deleted?.facility_key;
+                    if (!facilityId) {
+                    return res.status(400).json({
                         requestId: uuidv4(),
-                        message: "Items tidak ditemukan",
+                        message: "Facility ID tidak ditemukan pada item ini.",
                         success: false,
                     });
                 }
 
-                // ambil _id facility dari item yang dihapus
-                const facilityId = deleted.facility_key;  
-
-                const UpdateItems = await FacilityModel.findOneAndUpdate(
-                    { _id: facilityId },
-                    { $inc: { qty: -1 } },  // kurangi qty sebanyak 1
-                    { new: true }          // kembalikan dokumen terbaru
+                // 🔹 Update Facility:
+                // - Kurangi qty 1
+                // - Hapus item dari items_key
+                const updatedFacility = await FacilityModel.findOneAndUpdate(
+                { _id: facilityId, isDeleted: false },
+                {
+                    $inc: { qty: -1 },
+                    $pull: { items_key: deleted._id },
+                },
+                { new: true }
                 );
+
+                // 🔹 Safety: pastikan qty tidak negatif
+                if (updatedFacility && updatedFacility.qty < 0) {
+                await FacilityModel.findByIdAndUpdate(facilityId, { $set: { qty: 0 } });
+                }
 
                 await DivisionServices.DelItemsKeyToDivision(deleted._id, deleted.division_key);
                     
                 return res.status(200).json({
                     requestId: uuidv4(),
                     message: "Berhasil menghapus Items",
-                    UpdateItems,
+                    updatedFacility,
                     success: true,
                 });
     

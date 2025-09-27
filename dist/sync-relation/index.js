@@ -107,5 +107,14 @@ class SyncRelationDataModel {
             }
         });
     }
+    DelFacilityOnItemsKeyToDivision(DivisionId, ItemsId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!DivisionId || !ItemsId) {
+                throw new Error("DivisionId dan ItemsId harus diisi");
+            }
+            yield models_division_1.default.findOneAndUpdate({ _id: DivisionId, isDeleted: false }, { $pull: { item_key: ItemsId } }, { new: true });
+            console.log("✅ Hapus referensi item:", ItemsId, "dari division:", DivisionId);
+        });
+    }
 }
 exports.SyncRelationData = new SyncRelationDataModel();

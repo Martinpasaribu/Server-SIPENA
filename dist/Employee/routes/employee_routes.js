@@ -8,6 +8,7 @@ const employee_controllers_1 = require("../controllers/employee_controllers");
 const EmployeeRouter = express_1.default.Router();
 // semantic meaning
 EmployeeRouter.get("/", employee_controllers_1.EmployeeController.GetEmployee);
+EmployeeRouter.get("/facility-on-division/:id", employee_controllers_1.EmployeeController.GetIFacilityOnDivisionEmployee);
 EmployeeRouter.post("/", employee_controllers_1.EmployeeController.CreateEmployee);
 EmployeeRouter.put("/:_id", employee_controllers_1.EmployeeController.UpdateEmployee);
 EmployeeRouter.put("/status/:_id", employee_controllers_1.EmployeeController.UpdateEmployeeStatus);
