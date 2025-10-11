@@ -27,6 +27,11 @@ const ReportSchema = new mongoose_1.default.Schema({
         note: { type: String, default: '' },
         createdAt: { type: String, default: Date.now() }
     },
+    review: {
+        stars: { type: Number, default: 0 },
+        message: { type: String, default: '' },
+        status: { type: Boolean, default: false }
+    },
     report_type: { type: String, required: false, enum: ["BK", "M", "BL", "K"], },
     broken_type: { type: String, required: false, enum: ["R", "S", "B", ""], },
     progress: { type: String, required: false, enum: ["A", "P", "S", "T", "RU"], default: 'A' },

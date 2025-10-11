@@ -38,6 +38,7 @@ ReportRouter.post("/", ImageKit_1.upload, // ✅ langsung pakai middleware
         return res.status(500).json({ error: "Gagal mengunggah gambar." });
     }
 }), report_controllers_1.ReportControllers.PostReport);
+ReportRouter.post("/review/:_id", report_controllers_1.ReportControllers.PostReview);
 ReportRouter.get("/", VerifyAdminId_1.verifyAdmin, report_controllers_1.ReportControllers.GetReportAll);
 ReportRouter.get("/:customer_id", report_controllers_1.ReportControllers.GetReportCustomer);
 ReportRouter.put("/:id", report_controllers_1.ReportControllers.UpdateReport);

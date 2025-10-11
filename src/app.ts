@@ -74,11 +74,16 @@ app.use(session({
         // httpOnly: true,      
         // maxAge: 1000 * 60 * 60 * 24, // 1 hari
 
-
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
         httpOnly: true, 
         maxAge: 1000 * 60 * 60 * 24, 
+
+                
+        // secure: true,           // Menggunakan HTTPS wajib
+        // sameSite: 'none',       // Dibutuhkan untuk cookie lintas domain
+        // httpOnly: true,         // Melindungi dari XSS
+        // maxAge: 1000 * 60 * 60 * 24, // 1 hari
 
 
 }}));

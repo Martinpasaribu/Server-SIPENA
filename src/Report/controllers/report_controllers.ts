@@ -85,6 +85,71 @@ export class ReportControllers {
             }
         }
 
+        static async PostReview(req: any, res: any) {
+
+            const { _id } = req.params;
+            const { review } = req.body; // review = { stars: number, message: string }
+
+            try {
+                // 1. Validasi ID
+                if (!_id) {
+                    return res.status(400).json({
+                        requestId: uuidv4(),
+                        message: "ID Report tidak tersedia.",
+                        success: false,
+                    });
+                }
+                
+                // 2. Validasi Data Review (Ditambahkan)
+                if (
+                    !review || 
+                    typeof review.stars !== 'number' || 
+                    !review.message || 
+                    review.message.trim().length < 5
+                ) {
+                    return res.status(400).json({
+                        requestId: uuidv4(),
+                        message: "Data review tidak valid. Pastikan stars adalah angka dan message minimal 5 karakter.",
+                        success: false,
+                    });
+                }
+
+                // 3. Lakukan Update
+                const UpdateReview = await ReportModel.findByIdAndUpdate(
+                    _id,
+                    {
+                        review // Update/overwrite properti 'review' di dokumen Report
+                    },
+                    { new: true } // Mengembalikan dokumen yang sudah diperbarui
+                );
+
+                // 4. Cek jika Report tidak ditemukan
+                if (!UpdateReview) {
+                    return res.status(404).json({
+                        requestId: uuidv4(),
+                        message: "Report tidak ditemukan.",
+                        success: false,
+                    });
+                }
+
+        // 5. Response sukses (Menggunakan 200 OK)
+        return res.status(200).json({
+            requestId: uuidv4(),
+            data: UpdateReview,
+            message: "Ulasan berhasil disimpan.",
+            success: true,
+        });
+        
+    } catch (error) {
+        return res.status(500).json({
+            requestId: uuidv4(),
+            data: null,
+            message: (error as Error).message,
+            success: false,
+        });
+    }
+}
+
 
         static async GetReportCustomer (req : any , res:any)  {
 

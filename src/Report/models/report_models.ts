@@ -8,6 +8,11 @@ interface IRepair {
     note: string,
     createdAt: Date
 }
+interface Review {
+    stars : number,
+    message: string,
+    status: boolean
+}
 interface IDivision_keys {
     _id : string,
     name: string,
@@ -25,6 +30,7 @@ interface IReport extends Document{
     complain_des: string,
     progress_end: Date,
     broken_des:   string,
+    Review: Review,
     repair:       IRepair,
     admin_note:   string,
     status:       boolean,
@@ -63,6 +69,14 @@ const ReportSchema = new mongoose.Schema({
         price : { type : Number, default: ''},
         note : { type : String, default: '' },
         createdAt : { type: String, default: Date.now() }
+
+    },
+
+    review: {
+
+        stars : { type : Number, default: 0},
+        message : { type : String, default: '' },
+        status : { type: Boolean, default: false }
 
     },
 

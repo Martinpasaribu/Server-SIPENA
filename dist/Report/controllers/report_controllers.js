@@ -85,6 +85,61 @@ class ReportControllers {
             }
         });
     }
+    static PostReview(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { _id } = req.params;
+            const { review } = req.body; // review = { stars: number, message: string }
+            try {
+                // 1. Validasi ID
+                if (!_id) {
+                    return res.status(400).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "ID Report tidak tersedia.",
+                        success: false,
+                    });
+                }
+                // 2. Validasi Data Review (Ditambahkan)
+                if (!review ||
+                    typeof review.stars !== 'number' ||
+                    !review.message ||
+                    review.message.trim().length < 5) {
+                    return res.status(400).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Data review tidak valid. Pastikan stars adalah angka dan message minimal 5 karakter.",
+                        success: false,
+                    });
+                }
+                // 3. Lakukan Update
+                const UpdateReview = yield report_models_1.default.findByIdAndUpdate(_id, {
+                    review // Update/overwrite properti 'review' di dokumen Report
+                }, { new: true } // Mengembalikan dokumen yang sudah diperbarui
+                );
+                // 4. Cek jika Report tidak ditemukan
+                if (!UpdateReview) {
+                    return res.status(404).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Report tidak ditemukan.",
+                        success: false,
+                    });
+                }
+                // 5. Response sukses (Menggunakan 200 OK)
+                return res.status(200).json({
+                    requestId: (0, uuid_1.v4)(),
+                    data: UpdateReview,
+                    message: "Ulasan berhasil disimpan.",
+                    success: true,
+                });
+            }
+            catch (error) {
+                return res.status(500).json({
+                    requestId: (0, uuid_1.v4)(),
+                    data: null,
+                    message: error.message,
+                    success: false,
+                });
+            }
+        });
+    }
     static GetReportCustomer(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { customer_id } = req.params;

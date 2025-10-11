@@ -37,6 +37,8 @@ ReportRouter.post(
   ReportControllers.PostReport
 );
 
+ReportRouter.post("/review/:_id", ReportControllers.PostReview);
+
 ReportRouter.get("/", verifyAdmin, ReportControllers.GetReportAll);
 ReportRouter.get("/:customer_id", ReportControllers.GetReportCustomer);
 ReportRouter.put("/:id", ReportControllers.UpdateReport);
